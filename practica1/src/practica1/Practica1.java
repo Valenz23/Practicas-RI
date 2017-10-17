@@ -12,9 +12,7 @@ package practica1;
 /******************************************************************************\
 |                                 LIBRERIAS                                    |
 \******************************************************************************/
-import com.google.common.io.Files;
-import com.googlecode.mp4parser.util.Path;
-import com.uwyn.jhighlight.tools.FileUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,13 +20,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 import org.xml.sax.ContentHandler;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.tika.Tika;
-import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.metadata.Metadata;
@@ -37,7 +33,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.language.detect.LanguageDetector;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.LinkContentHandler;
-import org.apache.tika.sax.XHTMLContentHandler;
 import org.apache.tika.sax.Link;
 import java.util.StringTokenizer;
 import java.util.LinkedList;
@@ -66,7 +61,7 @@ public class Practica1{
     //Hash map contenedor de las palabras del texto y el número de iteraciones
     static HashMap<String, Integer> conteo = new HashMap<>();
     
-    
+    //ArrayList de Palabras, para poder ordenar el contenido del HashMap
     static ArrayList<Palabras> listaOrdenada = new ArrayList<>();
     
 /******************************************************************************\
@@ -74,7 +69,8 @@ public class Practica1{
 \******************************************************************************/
     public Practica1(String c) {
         addFile(c);
-    }     
+    }
+    
 /******************************************************************************\
 |                      FUNCION PARA DETECTAR IDIOMA                            |
 \******************************************************************************/
@@ -83,7 +79,8 @@ public class Practica1{
         LanguageResult idioma = identifier.detect(text);
         //System.out.println("XXXXXX"+idioma.getLanguage());
         return idioma.getLanguage();
-    }      
+    }
+    
 /******************************************************************************\
 |                        FUNCION PARA EXTRAER LINKS                            |
 \******************************************************************************/
@@ -119,7 +116,8 @@ public class Practica1{
                 pw.println("Link: "+enlace.getUri());        
         }
         pw.close();    
-    }    
+    } 
+    
 /******************************************************************************\
 |             FUNCION PARA LEER LOS ARCHIVOS DEL DIRECTORIO                    |
 \******************************************************************************/
@@ -137,6 +135,7 @@ public class Practica1{
             }
         }
     }
+    
 /******************************************************************************\
 |                     FUNCION PARA PARSEAR ARCHIVOS                            |
 \******************************************************************************/
@@ -176,6 +175,7 @@ public class Practica1{
             }             
         }
     }
+    
 /******************************************************************************\
 |                     FUNCION PARA IMPRIMIR LOS DATOS                          |
 \******************************************************************************/
@@ -213,23 +213,26 @@ public class Practica1{
             pw.println("---------------------------------------------------------------------------------------------------------------");
         } 
     }
+    
 /******************************************************************************\
 |                 FUNCION PARA ORDENAR Y IMPRIMIR EL CONTEO                    |
 \******************************************************************************/
     public static void imprimirConteo(File f, String s) throws FileNotFoundException{
         //Pasando datos a Array para ser ordenado.
-        Palabras palabra = new Palabras();
+        Palabras palabra= new Palabras();
+        
         for(int i=0; i<conteo.size(); i++){
             for(Map.Entry<String, Integer> mapita : conteo.entrySet()){
-                palabra.nomPalabra = mapita.getKey();
-                palabra.numPalabras=mapita.getValue();
+                palabra.setNomPalabra(mapita.getKey());
+                palabra.setNumPalabra(mapita.getValue());
                 listaOrdenada.add(palabra);
             }
         }
         
         //ORDENANDO
         System.out.println("\nOrdenando...");
-        
+        //ARREGLAR LO DE LA C, que sería sobreescribir metodo compa
+        cmp c =new cmp();
         listaOrdenada.sort(c);
         
         //Creando archivo para introducir el conteo de palabras
@@ -250,6 +253,7 @@ public class Practica1{
         
         
     }
+    
 /******************************************************************************\
 |                                 FUNCION MAIN                                 |
 \******************************************************************************/

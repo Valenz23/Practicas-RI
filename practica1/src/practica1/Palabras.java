@@ -11,29 +11,38 @@ import java.util.Comparator;
  *
  * @author Franelas
  */
-public class Palabras implements Comparator{
-    String nomPalabra;
-    int numPalabras;
+public class Palabras{
+    private String nomPalabra;
+    private int numPalabra;
 
-    //Constructor
+    //Constructores
+    public Palabras(String nom, int num){
+        this.nomPalabra=nom;
+        this.numPalabra=num;
+    }
+    
     public Palabras(){
     }
     
-    //Sobreescribimos la clase comparar
-    @Override
-    public int compare(Object o1, Object o2) {
-        Palabras pal1 = new Palabras();
-        Palabras pal2 = new Palabras();
-        //To change body of generated methods, choose Tools | Templates.
-        //throw new UnsupportedOperationException("Not supported yet.");
-        if(o1 == null && o2 == null){
-            return 0;
-        }else if(pal1 != null && pal2 != null){
-            return -1;
-        }else if(pal1 == null && pal2 == null){
-            return 1;
-        }
-        
-        return 0;
+    
+    
+    //Metodos GET
+    public String getNomPalabra(){
+        return this.nomPalabra;
+    }
+    
+    public int getNumPalabra(){
+        return this.numPalabra;
+    }
+    
+    
+    
+    //Metodos SET
+    public void setNomPalabra(String n){
+        this.nomPalabra=n;
+    }
+    
+    public void setNumPalabra(int n){
+        this.numPalabra=n;
     }
 }
