@@ -5,10 +5,6 @@
 *  Recuperación de Información
 *  2017/2018
 *  Practica 1
-
-liando en mi rama
-aeaeaeaeae
-
 */
 package practica1;
 
@@ -69,6 +65,9 @@ public class Practica1{
 
     //Hash map contenedor de las palabras del texto y el número de iteraciones
     static HashMap<String, Integer> conteo = new HashMap<>();
+    
+    
+    static ArrayList<Palabras> listaOrdenada = new ArrayList<>();
     
 /******************************************************************************\
 |                                CONSTRUCTOR                                   |
@@ -167,7 +166,8 @@ public class Practica1{
                                         .replaceAll("\\$","").replaceAll("\\/","")
                                         .replaceAll("\\[","").replaceAll("\\]","")
                                         .replaceAll("\\#","").replaceAll("\\{","")
-                                        .replaceAll("\\}","").toLowerCase();
+                                        .replaceAll("\\}","").replaceAll("\'", "")
+                                        .toLowerCase();
             //System.out.println(asd);
             if(!conteo.containsKey(asd)){
                 conteo.compute(asd, (k,v) -> 1);
@@ -187,13 +187,13 @@ public class Practica1{
         AutoDetectReader detector = new AutoDetectReader(is);
         Charset charSet = detector.getCharset();
         //System.out.println("Encoding "+ charSet.toString());
-       // Metadata met = new Metadata();
+        // Metadata met = new Metadata();
 
         //String aux = tika.parseToString(is, met);
         //System.out.println(aux);
         //System.out.println("Metadatos::"+met.toString());
 
-       // String docDate = met.get("CreatorDate");
+        // String docDate = met.get("CreatorDate");
         //String docType = met.get("Content-Type");
         //System.out.println("Tipo::"+docType+" Fecha::"+docDate);       
 
@@ -201,8 +201,7 @@ public class Practica1{
         //System.out.println("lenguaje::"+identifyLanguage(text));
         //System.out.println("Contenido del documento");
         //System.out.println(text);
-
-        //TODO arreglar esto
+        
         System.out.println("Imprimiendo datos de "+file.getName());
         File f = new File (s+".txt");        
 
@@ -215,9 +214,24 @@ public class Practica1{
         } 
     }
 /******************************************************************************\
-|                     FUNCION PARA IMPRIMIR EL CONTEO                          |
+|                 FUNCION PARA ORDENAR Y IMPRIMIR EL CONTEO                    |
 \******************************************************************************/
     public static void imprimirConteo(File f, String s) throws FileNotFoundException{
+        //Pasando datos a Array para ser ordenado.
+        Palabras palabra = new Palabras();
+        for(int i=0; i<conteo.size(); i++){
+            for(Map.Entry<String, Integer> mapita : conteo.entrySet()){
+                palabra.nomPalabra = mapita.getKey();
+                palabra.numPalabras=mapita.getValue();
+                listaOrdenada.add(palabra);
+            }
+        }
+        
+        //ORDENANDO
+        System.out.println("\nOrdenando...");
+        
+        listaOrdenada.sort(c);
+        
         //Creando archivo para introducir el conteo de palabras
         File archivo = new File (s+"-"+f.getName()+".txt");
         PrintWriter escritura = new PrintWriter(archivo);
@@ -232,6 +246,9 @@ public class Practica1{
             //reseteo el hashmap
             conteo.clear();
         }
+        
+        
+        
     }
 /******************************************************************************\
 |                                 FUNCION MAIN                                 |
