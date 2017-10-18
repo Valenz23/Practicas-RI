@@ -19,9 +19,9 @@ public class cmp implements Comparator<Palabras>{
     public int compare(Palabras p1, Palabras p2){
         
         if(p1.getNumPalabra() > p2.getNumPalabra()){
-            return 1;
-        }else if(p1.getNumPalabra() < p2.getNumPalabra()){
             return -1;
+        }else if(p1.getNumPalabra() < p2.getNumPalabra()){
+            return 1;
         }else{
             return 0;
         }

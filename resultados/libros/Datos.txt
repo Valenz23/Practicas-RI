@@ -3,3 +3,38 @@ Tipo:		application/xhtml+xml
 Codificación:	UTF-8
 Idioma:		hu
 ---------------------------------------------------------------------------------------------------------------
+Nombre:		Gutenberg.html
+Tipo:		application/xhtml+xml
+Codificación:	UTF-8
+Idioma:		en
+---------------------------------------------------------------------------------------------------------------
+Nombre:		La femme francaise dans les temps modernes.epub
+Tipo:		application/epub+zip
+Codificación:	windows-1252
+Idioma:		fr
+---------------------------------------------------------------------------------------------------------------
+Nombre:		La vera cuciniera genovese.epub
+Tipo:		application/epub+zip
+Codificación:	windows-1252
+Idioma:		hu
+---------------------------------------------------------------------------------------------------------------
+Nombre:		pg53956.mobi
+Tipo:		application/x-mobipocket-ebook
+Codificación:	UTF-16LE
+Idioma:		
+---------------------------------------------------------------------------------------------------------------
+Nombre:		pg55719.mobi
+Tipo:		application/x-mobipocket-ebook
+Codificación:	windows-1252
+Idioma:		
+---------------------------------------------------------------------------------------------------------------
+Nombre:		Tika in Action.pdf
+Tipo:		application/pdf
+Codificación:	IBM866
+Idioma:		en
+---------------------------------------------------------------------------------------------------------------
+Nombre:		In the days of queen Mary.txt
+Tipo:		text/plain
+Codificación:	windows-1252
+Idioma:		en
+---------------------------------------------------------------------------------------------------------------
