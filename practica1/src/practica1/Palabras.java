@@ -5,8 +5,6 @@
  */
 package practica1;
 
-import java.util.Comparator;
-
 /**
  *
  * @author Franelas
