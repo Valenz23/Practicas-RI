@@ -16,7 +16,7 @@ public class cmp implements Comparator<Palabras>{
     
     //Sobreescribimos la clase comparar
     @Override
-    public int compare(Palabras p1, Palabras p2) {
+    public int compare(Palabras p1, Palabras p2){
         
         if(p1.getNumPalabra() > p2.getNumPalabra()){
             return -1;
