@@ -165,7 +165,7 @@ public class Practica1{
                                         .replaceAll("\\$","").replaceAll("\\/","")
                                         .replaceAll("\\[","").replaceAll("\\]","")
                                         .replaceAll("\\#","").replaceAll("\\{","")
-                                        .replaceAll("\\}","").replaceAll("\'", "")
+                                        .replaceAll("\\}","").replaceAll("\'", "")                                        
                                         .toLowerCase();
             //System.out.println(asd);
             if(!conteo.containsKey(asd)){
@@ -219,18 +219,19 @@ public class Practica1{
 \******************************************************************************/
     public static void imprimirConteo(File f, String s) throws FileNotFoundException{
         //Pasando datos a Array para ser ordenado.
-        Palabras palabra= new Palabras();
         
-        for(int i=0; i<conteo.size(); i++){
-            for(Map.Entry<String, Integer> mapita : conteo.entrySet()){
-                palabra.setNomPalabra(mapita.getKey());
-                palabra.setNumPalabra(mapita.getValue());
-                listaOrdenada.add(palabra);
-            }
+        for(Map.Entry<String, Integer> mapita : conteo.entrySet()){
+            Palabras pal = new Palabras();
+            pal.setNomPalabra(mapita.getKey());
+            pal.setNumPalabra(mapita.getValue());
+            listaOrdenada.add(pal);
+            
         }
         
+        
         //ORDENANDO
-        System.out.println("\nOrdenando...");
+        System.out.println("Ordenando lista de "+f.getName());
+        
         //ARREGLAR LO DE LA C, que sería sobreescribir metodo compa
         cmp c =new cmp();
         listaOrdenada.sort(c);
@@ -240,17 +241,15 @@ public class Practica1{
         PrintWriter escritura = new PrintWriter(archivo);
 
         System.out.println("Imprimiendo conteo de "+f.getName());
-        for(int i=0; i < conteo.size(); i++){
-            for(Map.Entry<String, Integer> mapita : conteo.entrySet()){
-                escritura.println("Clave:\t"+ mapita.getKey() + "\t\t valor:\t" + mapita.getValue());
-            }
-            escritura.close();
-
-            //reseteo el hashmap
-            conteo.clear();
+        //for(int i=0; i < listaOrdenada.size(); i++){            
+        for (Palabras pal : listaOrdenada) {     
+            escritura.println(pal.getNomPalabra()+","+pal.getNumPalabra()+";");
         }
         
-        
+        //cerramos el printwriter y reseteamos los arrays
+        escritura.close();
+        conteo.clear();
+        listaOrdenada.clear();
         
     }
     

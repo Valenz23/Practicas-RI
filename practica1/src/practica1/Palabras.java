@@ -4,9 +4,6 @@
  * and open the template in the editor.
  */
 package practica1;
-
-import java.util.Comparator;
-
 /**
  *
  * @author Franelas
@@ -22,9 +19,7 @@ public class Palabras{
     }
     
     public Palabras(){
-    }
-    
-    
+    }  
     
     //Metodos GET
     public String getNomPalabra(){
@@ -33,9 +28,7 @@ public class Palabras{
     
     public int getNumPalabra(){
         return this.numPalabra;
-    }
-    
-    
+    }    
     
     //Metodos SET
     public void setNomPalabra(String n){
