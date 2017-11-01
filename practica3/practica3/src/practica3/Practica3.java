@@ -6,7 +6,7 @@
 *  2017/2018
 *  Practica 1
 */
-package practica1;
+package practica3;
 
 
 /******************************************************************************\
@@ -64,7 +64,7 @@ import org.apache.lucene.util.Version;
 /******************************************************************************\
 |                              CLASE PRINCIPAL                                 |
 \******************************************************************************/
-public class Practica1{
+public class Practica3{
     
 /******************************************************************************\
 |                            VARIABLES GLOBALES                                |
@@ -82,7 +82,7 @@ public class Practica1{
 /******************************************************************************\
 |                                CONSTRUCTOR                                   |
 \******************************************************************************/
-    public Practica1(String c) {
+    public Practica3(String c) {
         addFile(c);
     }
     
@@ -272,7 +272,7 @@ public class Practica1{
  /*****************************************************************************\
 |         FUNCION QUE TOKENIZA UN STRING Y LO ALMACENA EN EL HASHMAP            |
 \******************************************************************************/ 
-    public static void Tokenizar_Almacenar(Analyzer an, String str){
+    public static void TokenizarYAlmacenar(Analyzer an, String str){
         
         try{
             TokenStream stream = an.tokenStream(null, new StringReader(str));
@@ -305,7 +305,7 @@ public class Practica1{
         
         String text = "Lucene is: a search simple, yet powerful, java java, java based search library.";
 
-        Tokenizar_Almacenar(simple, text);       
+        TokenizarYAlmacenar(simple, text);       
        
        /* System.out.println("Iniciando Programa");    
         System.out.println("------------------------------------------------------------------------------------------------"); 
