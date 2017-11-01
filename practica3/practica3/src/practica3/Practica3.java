@@ -288,7 +288,8 @@ public class Practica3{
         //Creamos varios analizadores de Lucene        
         Analyzer whitespace = new WhitespaceAnalyzer();
         Analyzer simple = new SimpleAnalyzer();
-        Analyzer standard = new StandardAnalyzer();   
+        Analyzer standard = new StandardAnalyzer();
+        Analizador analizador = new Analizador();
        
         System.out.println("Iniciando Programa");    
         System.out.println("------------------------------------------------------------------------------------------------"); 
@@ -337,6 +338,9 @@ public class Practica3{
             
             parsearDatos(f,standard);            
             imprimirConteo(f,theDir+"/Conteo-Standard");  
+            
+            parsearDatos(f,analizador.getAnalizador());            
+            imprimirConteo(f,theDir+"/Conteo-Analizador");  
         }      
         System.out.println("------------------------------------------------------------------------------------------------");  
         System.out.println("Programa finalizado");
