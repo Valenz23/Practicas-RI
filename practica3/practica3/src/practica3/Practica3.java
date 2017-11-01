@@ -16,50 +16,60 @@ package practica3;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-//import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import org.xml.sax.ContentHandler;
-//import java.nio.charset.Charset;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 // TODO quitar todo esto
 //import org.apache.tika.Tika;
-//import org.apache.tika.parser.ParseContext;
-//import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.AutoDetectParser;
 //import org.apache.tika.metadata.Metadata;
-//
-//
 //import org.apache.tika.language.detect.LanguageDetector;
-//import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.sax.BodyContentHandler;
 //import org.apache.tika.sax.LinkContentHandler;
 //import org.apache.tika.sax.Link;
 //import org.apache.tika.parser.Parser;
-//
 //import org.apache.tika.detect.AutoDetectReader;
 //import org.apache.tika.exception.TikaException;
 //import org.apache.tika.langdetect.OptimaizeLangDetector;
 //import org.apache.tika.language.detect.LanguageResult;
 
 import java.util.StringTokenizer;
-//import java.util.LinkedList;
-//import java.util.List;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import javax.management.Query;
 import org.xml.sax.SAXException;
 
 //Librerias de Lucene
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharFilter;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.util.Version;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
 
 /******************************************************************************\
 |                              CLASE PRINCIPAL                                 |
@@ -157,42 +167,18 @@ public class Practica3{
 |                     FUNCION PARA PARSEAR ARCHIVOS                            |
 \******************************************************************************/
     //TODO hacer con lucene
-/*    public static void parsearDatos(File file) throws FileNotFoundException, IOException, SAXException, TikaException {
+    public static void parsearDatos(File file, Analyzer ana) throws FileNotFoundException, IOException, SAXException, TikaException {
 
-        InputStream in = new FileInputStream(file); 
-        Metadata meta = new Metadata();
+        InputStream in = new FileInputStream(file);         
         ContentHandler ch = new BodyContentHandler(-1);
         ParseContext pc = new ParseContext();
-
         AutoDetectParser parser = new AutoDetectParser();
-
-        parser.parse(in, ch, meta,pc);
-        StringTokenizer st = new StringTokenizer(ch.toString());
-
-        //Metodo para hacer conteo de palabras
+        parser.parse(in, ch, new Metadata() ,pc);       
+        
         System.out.println("Parseando "+file.getName());
-        while (st.hasMoreTokens()) {
-            //quitamos signos de puntuacion varios y ponemos las palabras en minuscula
-            String asd = st.nextToken().replaceAll("\\.", "").replaceAll("\\,", "")
-                                        .replaceAll("\\;","").replaceAll("\\?","")
-                                        .replaceAll("\\:","").replaceAll("\\!","")
-                                        .replaceAll("\\=","").replaceAll("\\_","")
-                                        .replaceAll("\\-"," ").replaceAll("\"","")
-                                        .replaceAll("[0-9]","").replaceAll("\\(","")
-                                        .replaceAll("\\)","").replaceAll("\\%","")
-                                        .replaceAll("\\$","").replaceAll("\\/","")
-                                        .replaceAll("\\[","").replaceAll("\\]","")
-                                        .replaceAll("\\#","").replaceAll("\\{","")
-                                        .replaceAll("\\}","").replaceAll("\'", "")                                        
-                                        .toLowerCase();
-            //System.out.println(asd);
-            if(!conteo.containsKey(asd)){
-                conteo.compute(asd, (k,v) -> 1);
-            }else{
-                conteo.compute(asd, (k,v) -> v+1);
-            }             
-        }
-    }*/
+        
+        Tokenizar(ana, ch.toString());       
+    }
     
 /******************************************************************************\
 |                     FUNCION PARA IMPRIMIR LOS DATOS                          |
@@ -248,23 +234,17 @@ public class Practica3{
         
         //ORDENANDO
         System.out.println("Ordenando lista de "+f.getName());
-        
-        //ARREGLAR LO DE LA C, que sería sobreescribir metodo compa
+       
         cmp c =new cmp();
         listaOrdenada.sort(c);
         
         //Creando archivo para introducir el conteo de palabras
         File archivo = new File (s+"-"+f.getName()+".txt");
-        PrintWriter escritura = new PrintWriter(archivo);
-
-        System.out.println("Imprimiendo conteo de "+f.getName());
-        //for(int i=0; i < listaOrdenada.size(); i++){            
-        for (Palabras pal : listaOrdenada) {     
-            escritura.println(pal.getNomPalabra()+","+pal.getNumPalabra()+";");
+        try (PrintWriter escritura = new PrintWriter(archivo)) {
+            System.out.println("Imprimiendo conteo de "+f.getName());
+            listaOrdenada.forEach((pal) -> {escritura.println(pal.getNomPalabra()+","+pal.getNumPalabra()+";");
+            }); //cerramos el printwriter y reseteamos los arrays
         }
-        
-        //cerramos el printwriter y reseteamos los arrays
-        escritura.close();
         conteo.clear();
         listaOrdenada.clear();
         
@@ -272,28 +252,34 @@ public class Practica3{
  /*****************************************************************************\
 |         FUNCION QUE TOKENIZA UN STRING Y LO ALMACENA EN EL HASHMAP            |
 \******************************************************************************/ 
-    public static void TokenizarYAlmacenar(Analyzer an, String str){
+    public static void Tokenizar(Analyzer an, String str){
         
-        try{
-            TokenStream stream = an.tokenStream(null, new StringReader(str));
-            stream.reset();
-            
+        try{               
+            TokenStream stream = an.tokenStream(null, new StringReader(str));    
+            OffsetAttribute off = stream.addAttribute(OffsetAttribute.class); //guarda la posicion de la palabra
+            CharTermAttribute cha = stream.addAttribute(CharTermAttribute.class); //guarda la palabra?            
+            stream.reset();            
             while(stream.incrementToken()){
-                String asd = stream.getAttribute(CharTermAttribute.class).toString();
-                
-                if(!conteo.containsKey(asd)){
-                    conteo.compute(asd, (k,v) -> 1);
-                }else{
-                    conteo.compute(asd, (k,v) -> v+1);
-                } 
+                String asd = cha.toString();                
+                //System.out.println(cha.toString()+" : ["+off.startOffset()+","+off.endOffset()+"]");
+                //Almacenamos en el hashmap
+                Almacenar(asd);
             }
+            stream.close();
         }
         catch(IOException e){ throw new RuntimeException(); }        
         
     }
-    
-    
-    
+ /*****************************************************************************\
+|         FUNCION QUE  PALABRAS ALMACENA EN EL HASHMAP                         |
+\******************************************************************************/     
+    public static void Almacenar(String str){
+        if(!conteo.containsKey(str)){
+            conteo.compute(str, (k,v) -> 1);
+        }else{
+            conteo.compute(str, (k,v) -> v+1);
+        } 
+    }
 /******************************************************************************\
 |                                 FUNCION MAIN                                 |
 \******************************************************************************/
@@ -302,17 +288,14 @@ public class Practica3{
         //Creamos varios analizadores de Lucene        
         Analyzer whitespace = new WhitespaceAnalyzer();
         Analyzer simple = new SimpleAnalyzer();
-        
-        String text = "Lucene is: a search simple, yet powerful, java java, java based search library.";
-
-        TokenizarYAlmacenar(simple, text);       
+        Analyzer standard = new StandardAnalyzer();   
        
-       /* System.out.println("Iniciando Programa");    
+        System.out.println("Iniciando Programa");    
         System.out.println("------------------------------------------------------------------------------------------------"); 
         
         //Creamos un objeto Practica1 y le pasamos la direccion del directorio que nos interesa "indexar"  
         String path = "libros";
-        Practica1 madn = new Practica1("../"+path);                     
+        Practica3 madn = new Practica3("../"+path);                     
 
         //creamos una carpeta que contendrá los resultados
         
@@ -341,16 +324,21 @@ public class Practica3{
         }
         
         // Se parsean todos los ficheros pasados como argumento y se extrae el contenido
-        for (String file : madn.lDocs) {
-
-            File f = new File(file);//
+        for (String file : madn.lDocs) {            
+            File f = new File(file);                    
             System.out.println("------------------------------------------------------------------------------------------------");            
-            //parsearDatos(f);
+            parsearDatos(f,whitespace);            
             //imprimirEnlaces(f,theDir+"/Enlaces");
             //imprimirDatos(f,theDir+"/Datos",tika);
-            imprimirConteo(f,theDir+"/Conteo");                      
+            imprimirConteo(f,theDir+"/Conteo-WhiteSpace");  
+            
+            parsearDatos(f,simple);            
+            imprimirConteo(f,theDir+"/Conteo-Simple");  
+            
+            parsearDatos(f,standard);            
+            imprimirConteo(f,theDir+"/Conteo-Standard");  
         }      
         System.out.println("------------------------------------------------------------------------------------------------");  
-        System.out.println("Programa finalizado");*/
+        System.out.println("Programa finalizado");
     }
 }

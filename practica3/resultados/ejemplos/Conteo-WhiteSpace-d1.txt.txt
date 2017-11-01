@@ -1,0 +1,8 @@
+that,1;
+cats,1;
+same,1;
+things,1;
+eat.,1;
+D.o.g.s,1;
+e.a.t,1;
+t.h.e,1;
