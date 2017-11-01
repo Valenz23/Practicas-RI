@@ -6,7 +6,7 @@
 *  2017/2018
 *  Practica 1
 */
-package practica3;
+package practica1;
 
 
 /******************************************************************************\
@@ -16,14 +16,16 @@ package practica3;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import org.xml.sax.ContentHandler;
-import java.nio.charset.Charset;
+//import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 // TODO quitar todo esto
 //import org.apache.tika.Tika;
@@ -44,10 +46,20 @@ import java.util.HashMap;
 //import org.apache.tika.language.detect.LanguageResult;
 
 import java.util.StringTokenizer;
-import java.util.LinkedList;
-import java.util.List;
+//import java.util.LinkedList;
+//import java.util.List;
 import java.util.Map;
 import org.xml.sax.SAXException;
+
+//Librerias de Lucene
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.core.StopAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.Version;
 
 /******************************************************************************\
 |                              CLASE PRINCIPAL                                 |
@@ -70,7 +82,7 @@ public class Practica1{
 /******************************************************************************\
 |                                CONSTRUCTOR                                   |
 \******************************************************************************/
-    public Practica3(String c) {
+    public Practica1(String c) {
         addFile(c);
     }
     
@@ -78,12 +90,12 @@ public class Practica1{
 |                      FUNCION PARA DETECTAR IDIOMA                            |
 \******************************************************************************/
     //TODO identificar lenguaje
-    public static String identifyLanguage(String text) throws IOException {                
+   /* public static String identifyLanguage(String text) throws IOException {                
         LanguageDetector identifier  = new  OptimaizeLangDetector().loadModels();
         LanguageResult idioma = identifier.detect(text);
         //System.out.println("XXXXXX"+idioma.getLanguage());
         return idioma.getLanguage();
-    }
+    }*/
     
 /******************************************************************************\
 |                        FUNCION PARA EXTRAER LINKS                            |
@@ -145,7 +157,7 @@ public class Practica1{
 |                     FUNCION PARA PARSEAR ARCHIVOS                            |
 \******************************************************************************/
     //TODO hacer con lucene
-    public static void parsearDatos(File file) throws FileNotFoundException, IOException, SAXException, TikaException {
+/*    public static void parsearDatos(File file) throws FileNotFoundException, IOException, SAXException, TikaException {
 
         InputStream in = new FileInputStream(file); 
         Metadata meta = new Metadata();
@@ -180,7 +192,7 @@ public class Practica1{
                 conteo.compute(asd, (k,v) -> v+1);
             }             
         }
-    }
+    }*/
     
 /******************************************************************************\
 |                     FUNCION PARA IMPRIMIR LOS DATOS                          |
@@ -257,15 +269,53 @@ public class Practica1{
         listaOrdenada.clear();
         
     }
+ /*****************************************************************************\
+|                       FUNCION QUE TOKENIZA UN STRING                         |
+\******************************************************************************/ 
+    public static List TokenizarString(Analyzer an, String str){
+        
+        List result = new ArrayList<>();
+        
+        try{
+            TokenStream stream = an.tokenStream(null, new StringReader(str));
+            stream.reset();
+            
+            while(stream.incrementToken()){
+                String neu = stream.getAttribute(CharTermAttribute.class).toString();
+                result.add(neu);
+            }
+        }
+        catch(IOException e){ throw new RuntimeException(); }
+        
+        return result;
+    }
+    
+    
     
 /******************************************************************************\
 |                                 FUNCION MAIN                                 |
 \******************************************************************************/
     public static void main(String[] args) throws Exception {
-
-        // Creaamos una instancia de Tika con la configuracion por defecto
-       // Tika tika = new Tika();
-        System.out.println("Iniciando Programa");    
+        
+        //Creamos varios analizadores de Lucene        
+        Analyzer whitespace = new WhitespaceAnalyzer();
+        Analyzer simple = new SimpleAnalyzer();
+        Analyzer standard = new StandardAnalyzer();
+        
+        String text = "Lucene is: a simple, yet powerful, java based search library.";
+        List ss;
+        
+        ss = TokenizarString(whitespace, text);        
+        System.out.print("WhiteSpaceAnalyzer ==>"+ss+" \n");
+        
+        ss = TokenizarString(simple, text);        
+        System.out.print("SimpleAnalyzer ==>"+ss+" \n");
+        
+        ss = TokenizarString(standard, text);        
+        System.out.print("StandardAnalyzer  ==>"+ss+" \n");
+       
+       
+       /* System.out.println("Iniciando Programa");    
         System.out.println("------------------------------------------------------------------------------------------------"); 
         
         //Creamos un objeto Practica1 y le pasamos la direccion del directorio que nos interesa "indexar"  
@@ -303,12 +353,12 @@ public class Practica1{
 
             File f = new File(file);//
             System.out.println("------------------------------------------------------------------------------------------------");            
-            parsearDatos(f);
+            //parsearDatos(f);
             //imprimirEnlaces(f,theDir+"/Enlaces");
             //imprimirDatos(f,theDir+"/Datos",tika);
             imprimirConteo(f,theDir+"/Conteo");                      
         }      
         System.out.println("------------------------------------------------------------------------------------------------");  
-        System.out.println("Programa finalizado");
+        System.out.println("Programa finalizado");*/
     }
 }
