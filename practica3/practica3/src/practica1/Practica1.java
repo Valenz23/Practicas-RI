@@ -270,24 +270,26 @@ public class Practica1{
         
     }
  /*****************************************************************************\
-|                       FUNCION QUE TOKENIZA UN STRING                         |
+|         FUNCION QUE TOKENIZA UN STRING Y LO ALMACENA EN EL HASHMAP            |
 \******************************************************************************/ 
-    public static List TokenizarString(Analyzer an, String str){
-        
-        List result = new ArrayList<>();
+    public static void Tokenizar_Almacenar(Analyzer an, String str){
         
         try{
             TokenStream stream = an.tokenStream(null, new StringReader(str));
             stream.reset();
             
             while(stream.incrementToken()){
-                String neu = stream.getAttribute(CharTermAttribute.class).toString();
-                result.add(neu);
+                String asd = stream.getAttribute(CharTermAttribute.class).toString();
+                
+                if(!conteo.containsKey(asd)){
+                    conteo.compute(asd, (k,v) -> 1);
+                }else{
+                    conteo.compute(asd, (k,v) -> v+1);
+                } 
             }
         }
-        catch(IOException e){ throw new RuntimeException(); }
+        catch(IOException e){ throw new RuntimeException(); }        
         
-        return result;
     }
     
     
@@ -300,20 +302,10 @@ public class Practica1{
         //Creamos varios analizadores de Lucene        
         Analyzer whitespace = new WhitespaceAnalyzer();
         Analyzer simple = new SimpleAnalyzer();
-        Analyzer standard = new StandardAnalyzer();
         
-        String text = "Lucene is: a simple, yet powerful, java based search library.";
-        List ss;
-        
-        ss = TokenizarString(whitespace, text);        
-        System.out.print("WhiteSpaceAnalyzer ==>"+ss+" \n");
-        
-        ss = TokenizarString(simple, text);        
-        System.out.print("SimpleAnalyzer ==>"+ss+" \n");
-        
-        ss = TokenizarString(standard, text);        
-        System.out.print("StandardAnalyzer  ==>"+ss+" \n");
-       
+        String text = "Lucene is: a search simple, yet powerful, java java, java based search library.";
+
+        Tokenizar_Almacenar(simple, text);       
        
        /* System.out.println("Iniciando Programa");    
         System.out.println("------------------------------------------------------------------------------------------------"); 
