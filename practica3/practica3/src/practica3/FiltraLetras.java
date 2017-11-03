@@ -15,6 +15,8 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
  *
  * @author Valenz
  */
+
+
 public class FiltraLetras extends TokenFilter {
 
     
