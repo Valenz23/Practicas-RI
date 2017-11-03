@@ -17,16 +17,8 @@ import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
-import org.apache.lucene.analysis.core.StopFilterFactory;
-import org.apache.lucene.analysis.custom.CustomAnalyzer;
-import org.apache.lucene.analysis.en.EnglishPossessiveFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
-import org.apache.lucene.analysis.pattern.PatternReplaceCharFilterFactory;
-import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
-import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 
 /**
  *
@@ -40,9 +32,6 @@ public class Analizador extends Analyzer{
     
     Set<String> pVacias;
     
-    //TODO cargar fichero y rellenar el set con palabras vacias
-    
-
     public Analizador() throws FileNotFoundException, IOException {
         pVacias = new HashSet<>();                
         FileReader f = new FileReader("stopword/english.txt");        
@@ -50,7 +39,7 @@ public class Analizador extends Analyzer{
         String cadena;
         while((cadena = b.readLine())!=null) {
             //System.out.println(cadena);
-            pVacias.add(cadena.toString());
+            pVacias.add(cadena);
         }
         b.close();
     }
