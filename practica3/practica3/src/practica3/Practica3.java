@@ -23,7 +23,6 @@ import java.io.StringReader;
 import org.xml.sax.ContentHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import org.xml.sax.SAXException;
 
 //librerias de tika

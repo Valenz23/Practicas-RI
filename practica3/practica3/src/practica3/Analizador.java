@@ -5,7 +5,11 @@
  */
 package practica3;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
@@ -37,6 +41,19 @@ public class Analizador extends Analyzer{
     Set<String> pVacias;
     
     //TODO cargar fichero y rellenar el set con palabras vacias
+    
+
+    public Analizador() throws FileNotFoundException, IOException {
+        pVacias = new HashSet<>();                
+        FileReader f = new FileReader("stopword/english.txt");        
+        BufferedReader b = new BufferedReader(f);
+        String cadena;
+        while((cadena = b.readLine())!=null) {
+            //System.out.println(cadena);
+            pVacias.add(cadena.toString());
+        }
+        b.close();
+    }
     
         
     @Override
