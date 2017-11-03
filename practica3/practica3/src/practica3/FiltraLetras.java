@@ -71,7 +71,7 @@ public class FiltraLetras extends Tokenizer{
      * from it.
      */
     public FiltraLetras(Reader reader) {
-        super(reader);
+        
         int numChars;
         char[] buffer = new char[1024];
         StringBuilder stringBuilder = new StringBuilder();

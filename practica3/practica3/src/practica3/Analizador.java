@@ -29,18 +29,19 @@ import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 /* Analizador que separa por espacios en blanco, quita signos que no sean letras,
 *  pone los tokens en minusculas y quita las palabras vacias
 */
-public class Analizador {
+public class Analizador extends Analyzer{
     
+    //Variables globales
     private Analyzer mio;
-   public Analizador() throws IOException {
+    
+    
+    public Analizador() throws IOException {
        //StandardTokenizer tokenStream = new StandardTokenizer(matchVersion, reader);
         this.mio = CustomAnalyzer.builder()
                 .withTokenizer(StandardTokenizerFactory.class)
                 .addTokenFilter(WordDelimiterFilterFactory.class)
                 .addTokenFilter(LowerCaseFilterFactory.class)
                 .addTokenFilter(StopFilterFactory.class)
-                .addCharFilter("[a-z]", "a")
-                .addTokenFilter(StopFilterFactory.class)                      
                 .build();
     }
     
