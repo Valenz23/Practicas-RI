@@ -9,14 +9,13 @@
 package practica3;
 
 
-/******************************************************************************\
+/****************************************************************************\
 |                                 LIBRERIAS                                    |
-\******************************************************************************/
+\****************************************************************************/
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -24,12 +23,12 @@ import java.io.StringReader;
 import org.xml.sax.ContentHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 //librerias de tika
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.SAXException;
 
 //Librerias de Lucene
 import org.apache.lucene.analysis.Analyzer;
@@ -41,11 +40,14 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import static practica3.Practica3.imprimirConteo;
+import static practica3.Practica3.parsearDatos;
 
-/******************************************************************************\
+/****************************************************************************\
 |                              CLASE PRINCIPAL                                 |
-\******************************************************************************/
+\****************************************************************************/
 public class Practica3{
+    
     /**************************************************************************\
     |                          VARIABLES GLOBALES                              |
     \**************************************************************************/
@@ -63,63 +65,10 @@ public class Practica3{
     |                            CONSTRUCTOR                                   |
     | @param c -> String que contiene la direccion del fichero                 |
     \**************************************************************************/
-
-
     public Practica3(String c) {
         addFile(c);
-    }
+    } 
     
-    
-    /**************************************************************************\
-    |                      FUNCION PARA DETECTAR IDIOMA                        |
-    \**************************************************************************/
-    //TODO identificar lenguaje
-   /* public static String identifyLanguage(String text) throws IOException {                
-        LanguageDetector identifier  = new  OptimaizeLangDetector().loadModels();
-        LanguageResult idioma = identifier.detect(text);
-        //System.out.println("XXXXXX"+idioma.getLanguage());
-        return idioma.getLanguage();
-    }*/
-    
-    
-    /**************************************************************************\
-    |                     FUNCION PARA EXTRAER LINKS                           |
-    \**************************************************************************/
-    //TODO no se si hace falta esto, yo comentar
-    /* public static void imprimirEnlaces(File file, String s) throws Exception {
-        //Creamos objetos de tipo parser y metadata
-        Parser parser = new AutoDetectParser();
-        Metadata metadata = new Metadata();
-
-        //Creamos el contenedor de los enlaces
-        LinkContentHandler enlaces = new LinkContentHandler();   
-        //Creamos el stream para los archivos
-        InputStream stream = new FileInputStream(file);   
-
-        //System.out.println("seleccionando links ");
-
-        try {parser.parse(stream, enlaces, metadata,new ParseContext());}
-        finally {stream.close();}
-
-        //Creamos una lista con todos los enlaces
-        List<Link> lista  = new LinkedList<Link>();
-
-        //System.out.println(metadata.toString());
-        //System.out.println(handler.toString());
-        lista = enlaces.getLinks();
-
-        //Para cada enlace guarda la url en un archivo
-        System.out.println("Imprimiendo enlaces de "+file.getName());
-        File f = new File (s+"-"+file.getName()+".txt");
-        PrintWriter pw = new PrintWriter(f);
-        for (Link enlace : lista) {        
-            if(enlace.getUri()!="")
-                //System.out.println("link:"+enlace.getUri());  
-                pw.println("Link: "+enlace.getUri());        
-        }
-        pw.close();    
-    }*/ 
-   
     
     /**************************************************************************\
     |      FUNCION PARA LEER LOS ARCHIVOS DEL DIRECTORIO RECURSIVAMENTE        |
@@ -138,7 +87,8 @@ public class Practica3{
             }
         }
     }
-
+    
+    
     /**************************************************************************\
     |                    FUNCION PARA PARSEAR ARCHIVOS                         |
     | @param file -> fichero                                                   |
@@ -148,7 +98,6 @@ public class Practica3{
     | @throws org.xml.sax.SAXException*                                        |
     | @throws org.apache.tika.exception.TikaException                          |
     \**************************************************************************/
-
     public static void parsearDatos(File file, Analyzer ana) throws FileNotFoundException, IOException, SAXException, TikaException {
 
         //usamos tika para sacar los datos del fichero
@@ -164,46 +113,6 @@ public class Practica3{
     }
     
     
-    /**************************************************************************\
-    |                    FUNCION PARA IMPRIMIR LOS DATOS                       |
-    \**************************************************************************/
-    //TODO no se si hace falta ahora, yo comentar
-    /* public static void imprimirDatos(File file, String s, Tika tika) throws IOException, TikaException{        
-
-        String type = tika.detect(file); //detecta el tipo de archivo
-
-        InputStream is = new FileInputStream(file);
-        AutoDetectReader detector = new AutoDetectReader(is);
-        Charset charSet = detector.getCharset();
-        //System.out.println("Encoding "+ charSet.toString());
-        // Metadata met = new Metadata();
-
-        //String aux = tika.parseToString(is, met);
-        //System.out.println(aux);
-        //System.out.println("Metadatos::"+met.toString());
-
-        // String docDate = met.get("CreatorDate");
-        //String docType = met.get("Content-Type");
-        //System.out.println("Tipo::"+docType+" Fecha::"+docDate);       
-
-        String text = tika.parseToString(file);
-        //System.out.println("lenguaje::"+identifyLanguage(text));
-        //System.out.println("Contenido del documento");
-        //System.out.println(text);
-        
-        System.out.println("Imprimiendo datos de "+file.getName());
-        File f = new File (s+".txt");        
-
-        try (PrintWriter pw = new PrintWriter(new FileWriter(f,true))) {
-            pw.println("Nombre:\t\t"+file.getName());
-            pw.println("Tipo:\t\t"+type);
-            pw.println("Codificación:\t"+charSet.toString());
-            pw.println("Idioma:\t\t"+identifyLanguage(text));
-            pw.println("---------------------------------------------------------------------------------------------------------------");
-        } 
-    }*/
-    
-
     /**************************************************************************\
     |               FUNCION PARA ORDENAR E IMPRIMIR EL CONTEO                  |
     | @param f -> fichero                                                      |
@@ -241,6 +150,7 @@ public class Practica3{
         
     }
     
+    
     /**************************************************************************\
     |       FUNCION QUE TOKENIZA UN STRING Y LO ALMACENA EN EL HASHMAP         |
     | @param an -> analizador                                                  |
@@ -250,10 +160,8 @@ public class Practica3{
         
         try{               
             try (TokenStream stream = an.tokenStream(null, new StringReader(str))) {
-                //guarda la posicion de la palabra
-                OffsetAttribute off = stream.addAttribute(OffsetAttribute.class);
-                //guarda la palabra?
-                CharTermAttribute cha = stream.addAttribute(CharTermAttribute.class); 
+                OffsetAttribute off = stream.addAttribute(OffsetAttribute.class); //guarda la posicion de la palabra
+                CharTermAttribute cha = stream.addAttribute(CharTermAttribute.class); //guarda la palabra?
                 stream.reset();
                 while(stream.incrementToken()){
                     String asd = cha.toString();
@@ -266,7 +174,7 @@ public class Practica3{
         catch(IOException e){ throw new RuntimeException(); }        
         
     }
-
+    
     
     /**************************************************************************\
     |         FUNCION QUE  PALABRAS ALMACENA EN EL HASHMAP                     |
@@ -279,7 +187,7 @@ public class Practica3{
             conteo.compute(str, (k,v) -> v+1);
         } 
     }
-
+    
     
     /**************************************************************************\
     |                             FUNCION MAIN                                 |
@@ -288,7 +196,7 @@ public class Practica3{
     \**************************************************************************/
     public static void main(String[] args) throws Exception {
         
-        //Creamos varios analizadores de Lucene        
+        //Creamos varios analizadores de Lucene
         Analyzer whitespace = new WhitespaceAnalyzer();
         Analyzer simple = new SimpleAnalyzer();
         Analyzer standard = new StandardAnalyzer();
@@ -298,7 +206,7 @@ public class Practica3{
         System.out.println("------------------------------------------------------------------------------------------------"); 
         
         //Creamos un objeto Practica1 y le pasamos la direccion del directorio que nos interesa "indexar"  
-        String path = "ejemplos";
+        String path = "libros";
         Practica3 madn = new Practica3("../"+path);                     
 
         //creamos una carpeta que contendrá los resultados
