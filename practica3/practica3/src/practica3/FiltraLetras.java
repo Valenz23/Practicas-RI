@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 
 /**
@@ -65,7 +64,7 @@ public class FiltraLetras extends TokenFilter {
             String currentTokenInStream =
                 this.input.getAttribute(CharTermAttribute.class)
                     .toString().trim();
-
+        
             // Save the token if it is not an empty string
             if (currentTokenInStream.length() > 1) { //cambie el o por 1
                 nextToken = currentTokenInStream;

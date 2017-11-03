@@ -16,6 +16,7 @@ package practica3;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -23,13 +24,12 @@ import java.io.StringReader;
 import org.xml.sax.ContentHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import org.xml.sax.SAXException;
 
 //librerias de tika
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.SAXException;
 
 //Librerias de Lucene
 import org.apache.lucene.analysis.Analyzer;
@@ -46,10 +46,9 @@ import org.apache.tika.metadata.Metadata;
 |                              CLASE PRINCIPAL                                 |
 \******************************************************************************/
 public class Practica3{
-    
-/******************************************************************************\
-|                            VARIABLES GLOBALES                                |
-\******************************************************************************/
+    /**************************************************************************\
+    |                          VARIABLES GLOBALES                              |
+    \**************************************************************************/
     
     //Esta lista contiene la direccion de todos los documentos de un directorio
     ArrayList<String> lDocs = new ArrayList<>(); 
@@ -60,17 +59,20 @@ public class Practica3{
     //ArrayList de Palabras, para poder ordenar el contenido del HashMap
     static ArrayList<Palabras> listaOrdenada = new ArrayList<>();
     
-/******************************************************************************\
-|                                CONSTRUCTOR                                   |
-     * @param c -> String que contiene la direccion del fichero
-\******************************************************************************/
+    /**************************************************************************\
+    |                            CONSTRUCTOR                                   |
+    | @param c -> String que contiene la direccion del fichero                 |
+    \**************************************************************************/
+
+
     public Practica3(String c) {
         addFile(c);
     }
     
-/******************************************************************************\
-|                      FUNCION PARA DETECTAR IDIOMA                            |
-\******************************************************************************/
+    
+    /**************************************************************************\
+    |                      FUNCION PARA DETECTAR IDIOMA                        |
+    \**************************************************************************/
     //TODO identificar lenguaje
    /* public static String identifyLanguage(String text) throws IOException {                
         LanguageDetector identifier  = new  OptimaizeLangDetector().loadModels();
@@ -79,11 +81,12 @@ public class Practica3{
         return idioma.getLanguage();
     }*/
     
-/******************************************************************************\
-|                        FUNCION PARA EXTRAER LINKS                            |
-\******************************************************************************/
+    
+    /**************************************************************************\
+    |                     FUNCION PARA EXTRAER LINKS                           |
+    \**************************************************************************/
     //TODO no se si hace falta esto, yo comentar
-   /* public static void imprimirEnlaces(File file, String s) throws Exception {
+    /* public static void imprimirEnlaces(File file, String s) throws Exception {
         //Creamos objetos de tipo parser y metadata
         Parser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
@@ -116,10 +119,11 @@ public class Practica3{
         }
         pw.close();    
     }*/ 
+   
     
-/******************************************************************************\
-|      FUNCION PARA LEER LOS ARCHIVOS DEL DIRECTORIO DE FORMA RECURSIVA        |
-\******************************************************************************/
+    /**************************************************************************\
+    |      FUNCION PARA LEER LOS ARCHIVOS DEL DIRECTORIO RECURSIVAMENTE        |
+    \**************************************************************************/
     private void addFile(String s){
         File file = new File(s);
         File[] files = file.listFiles();        
@@ -134,16 +138,17 @@ public class Practica3{
             }
         }
     }
-    
-/******************************************************************************\
-|                     FUNCION PARA PARSEAR ARCHIVOS                            |
-     * @param file -> fichero
-     * @param ana -> analizador
-     * 
-     * @throws java.io.FileNotFoundException*
-     * @throws org.xml.sax.SAXException*
-     * @throws org.apache.tika.exception.TikaException
-/**************************************************************************/
+
+    /**************************************************************************\
+    |                    FUNCION PARA PARSEAR ARCHIVOS                         |
+    | @param file -> fichero                                                   |
+    | @param ana -> analizador                                                 |
+    |                                                                          |
+    | @throws java.io.FileNotFoundException*                                   |
+    | @throws org.xml.sax.SAXException*                                        |
+    | @throws org.apache.tika.exception.TikaException                          |
+    \**************************************************************************/
+
     public static void parsearDatos(File file, Analyzer ana) throws FileNotFoundException, IOException, SAXException, TikaException {
 
         //usamos tika para sacar los datos del fichero
@@ -158,11 +163,12 @@ public class Practica3{
         Tokenizar(ana, ch.toString());       
     }
     
-/******************************************************************************\
-|                     FUNCION PARA IMPRIMIR LOS DATOS                          |
-\******************************************************************************/
+    
+    /**************************************************************************\
+    |                    FUNCION PARA IMPRIMIR LOS DATOS                       |
+    \**************************************************************************/
     //TODO no se si hace falta ahora, yo comentar
-   /* public static void imprimirDatos(File file, String s, Tika tika) throws IOException, TikaException{        
+    /* public static void imprimirDatos(File file, String s, Tika tika) throws IOException, TikaException{        
 
         String type = tika.detect(file); //detecta el tipo de archivo
 
@@ -197,13 +203,14 @@ public class Practica3{
         } 
     }*/
     
-/******************************************************************************\
-|                 FUNCION PARA ORDENAR Y IMPRIMIR EL CONTEO                    |
-     * @param f -> fichero
-     * @param s -> String usado para imprimir
-     * 
-     * @throws java.io.FileNotFoundException
-/****************************************************************************/
+
+    /**************************************************************************\
+    |               FUNCION PARA ORDENAR E IMPRIMIR EL CONTEO                  |
+    | @param f -> fichero                                                      |
+    | @param s -> String usado para imprimir                                   |
+    |                                                                          |
+    | @throws java.io.FileNotFoundException                                    |
+    \**************************************************************************/
     public static void imprimirConteo(File f, String s) throws FileNotFoundException{
         
         //Pasando datos a Array para ser ordenado.
@@ -233,17 +240,20 @@ public class Practica3{
         listaOrdenada.clear();
         
     }
- /*****************************************************************************\
-|         FUNCION QUE TOKENIZA UN STRING Y LO ALMACENA EN EL HASHMAP            |
-     * @param an -> analizador
-     * @param str -> string a analizar
-/******************************************************************************/ 
+    
+    /**************************************************************************\
+    |       FUNCION QUE TOKENIZA UN STRING Y LO ALMACENA EN EL HASHMAP         |
+    | @param an -> analizador                                                  |
+    | @param str -> string a analizar                                          |
+    \**************************************************************************/ 
     public static void Tokenizar(Analyzer an, String str){
         
         try{               
             try (TokenStream stream = an.tokenStream(null, new StringReader(str))) {
-                OffsetAttribute off = stream.addAttribute(OffsetAttribute.class); //guarda la posicion de la palabra
-                CharTermAttribute cha = stream.addAttribute(CharTermAttribute.class); //guarda la palabra?
+                //guarda la posicion de la palabra
+                OffsetAttribute off = stream.addAttribute(OffsetAttribute.class);
+                //guarda la palabra?
+                CharTermAttribute cha = stream.addAttribute(CharTermAttribute.class); 
                 stream.reset();
                 while(stream.incrementToken()){
                     String asd = cha.toString();
@@ -256,10 +266,12 @@ public class Practica3{
         catch(IOException e){ throw new RuntimeException(); }        
         
     }
- /*****************************************************************************\
-|         FUNCION QUE  PALABRAS ALMACENA EN EL HASHMAP                         |
-     * @param str -> key a almacenar
-\******************************************************************************/     
+
+    
+    /**************************************************************************\
+    |         FUNCION QUE  PALABRAS ALMACENA EN EL HASHMAP                     |
+    | @param str -> key a almacenar                                            |
+    \**************************************************************************/     
     public static void Almacenar(String str){
         if(!conteo.containsKey(str)){
             conteo.compute(str, (k,v) -> 1);
@@ -267,12 +279,13 @@ public class Practica3{
             conteo.compute(str, (k,v) -> v+1);
         } 
     }
-/******************************************************************************\
-|                                 FUNCION MAIN                                 |
-     * @param args
-     * 
-     * @throws java.lang.Exception
-/******************************************************************************/
+
+    
+    /**************************************************************************\
+    |                             FUNCION MAIN                                 |
+    | @param args                                                              |
+    | @throws java.lang.Exception                                              |
+    \**************************************************************************/
     public static void main(String[] args) throws Exception {
         
         //Creamos varios analizadores de Lucene        
