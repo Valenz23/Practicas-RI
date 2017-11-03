@@ -329,7 +329,7 @@ public class Practica3{
             parsearDatos(f,standard);            
             imprimirConteo(f,theDir+"/Conteo-Standard");  
             
-            parsearDatos(f,analizador.getAnalizador());            
+            parsearDatos(f,analizador);            
             imprimirConteo(f,theDir+"/Conteo-Analizador");  
         }      
         System.out.println("------------------------------------------------------------------------------------------------");  

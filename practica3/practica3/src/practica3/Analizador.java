@@ -7,11 +7,18 @@ package practica3;
 
 import java.io.IOException;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
 import org.apache.lucene.analysis.pattern.PatternReplaceCharFilterFactory;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 
 /**
@@ -22,21 +29,20 @@ import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 Analizador que separa por espacios en blanco, quita signos que no sean letras,
 * pone los tokens en minusculas y quita las palabras vacias
 ***************************************************************************/
-public class Analizador {
-    
-    Analyzer mio;
+public class Analizador extends Analyzer{
 
-    public Analizador() throws IOException {
-        this.mio = CustomAnalyzer.builder()
-                .withTokenizer(StandardTokenizerFactory.class)
-                .addTokenFilter(WordDelimiterFilterFactory.class)
-                .addTokenFilter(LowerCaseFilterFactory.class)
-                .addTokenFilter(StopFilterFactory.class)                      
-                .build();
-    }
-    
-    public Analyzer getAnalizador(){
-        return mio;
+    @Override
+    protected TokenStreamComponents createComponents(String string) {
+        
+        Tokenizer tokenizer = new StandardTokenizer();
+        TokenStream filter = new WordDelimiterFilter(tokenizer, 0, CharArraySet.EMPTY_SET);
+        filter = new LowerCaseFilter(filter);
+        filter = new FiltraLetras(filter);
+        filter = new StopFilter(filter, CharArraySet.EMPTY_SET);        
+        
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        return new TokenStreamComponents(tokenizer,filter);
     }
     
 }
