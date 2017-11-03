@@ -11,23 +11,27 @@ import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
+import org.apache.lucene.analysis.pattern.PatternReplaceCharFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 
 /**
  *
  * @author Valenz
  */
+/*************************************************************************
+Analizador que separa por espacios en blanco, quita signos que no sean letras,
+* pone los tokens en minusculas y quita las palabras vacias
+***************************************************************************/
 public class Analizador {
     
     Analyzer mio;
 
-   public Analizador() throws IOException {
+    public Analizador() throws IOException {
         this.mio = CustomAnalyzer.builder()
                 .withTokenizer(StandardTokenizerFactory.class)
                 .addTokenFilter(WordDelimiterFilterFactory.class)
-                //.addTokenFilter()
                 .addTokenFilter(LowerCaseFilterFactory.class)
-                .addTokenFilter(StopFilterFactory.class)                         
+                .addTokenFilter(StopFilterFactory.class)                      
                 .build();
     }
     
