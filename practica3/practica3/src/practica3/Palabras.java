@@ -23,8 +23,7 @@ public class Palabras{
         this.numPalabra=num;
     }
     
-    public Palabras(){
-    }  
+    public Palabras(){}  
     
     
     
