@@ -15,6 +15,8 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
  *
  * @author Valenz
  */
+
+
 public class FiltraLetras extends TokenFilter {
 
     
@@ -60,18 +62,19 @@ public class FiltraLetras extends TokenFilter {
                 return false;
             }
 
-            // Get text of the current token and remove any
+            // Obtiene el texto del token actual y Get text of the current token and remove any
             // leading/trailing whitespace.
             String currentTokenInStream = 
             this.input.getAttribute(CharTermAttribute.class).toString().trim();
         
-            // Save the token if it is not an empty string
+            // Guarda el token si no es un espacio en blanco o una palabra de 
+            // tamaño uno.
             if (currentTokenInStream.length() > 1) { //cambio el 0 por 1
                 nextToken = currentTokenInStream;
             }
         }
 
-        // Save the current token
+        // Guarda el token actual
         this.charTermAttribute.setEmpty().append(nextToken);
         this.positionIncrementAttribute.setPositionIncrement(1);
         return true;
