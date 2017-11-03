@@ -18,8 +18,7 @@ public class Palabras{
         this.numPalabra=num;
     }
     
-    public Palabras(){
-    }  
+    public Palabras(){}  
     
     //Metodos GET
     public String getNomPalabra(){
