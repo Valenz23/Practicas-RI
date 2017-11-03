@@ -34,7 +34,7 @@ public class Analizador {
                 //.addTokenFilter()
                 .addTokenFilter(LowerCaseFilterFactory.class)
                 .addTokenFilter(StopFilterFactory.class)
-                .addCharFilter(PatternReplaceCharFilterFactory.class, "[a-z]")
+                .addCharFilter(PatternReplaceCharFilterFactory.class, "[a-z]", "a")
                 .build();
     }
     

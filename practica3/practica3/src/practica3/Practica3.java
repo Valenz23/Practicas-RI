@@ -16,18 +16,18 @@ package practica3;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+//import java.io.FileReader;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
+//import java.io.Reader;
 import java.io.StringReader;
 import org.xml.sax.ContentHandler;
-import java.nio.charset.Charset;
+//import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+//import java.util.List;
 
 // TODO quitar todo esto
 //import org.apache.tika.Tika;
@@ -44,30 +44,30 @@ import org.apache.tika.sax.BodyContentHandler;
 //import org.apache.tika.langdetect.OptimaizeLangDetector;
 //import org.apache.tika.language.detect.LanguageResult;
 
-import java.util.StringTokenizer;
-import java.util.LinkedList;
-import java.util.List;
+//import java.util.StringTokenizer;
+//import java.util.LinkedList;
+//import java.util.List;
 import java.util.Map;
-import javax.management.Query;
+//import javax.management.Query;
 import org.xml.sax.SAXException;
 
 //Librerias de Lucene
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.CharFilter;
+//import org.apache.lucene.analysis.CharFilter;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
+//import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.analysis.core.StopAnalyzer;
+//import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.util.Version;
+//import org.apache.lucene.document.Document;
+//import org.apache.lucene.document.Field;
+//import org.apache.lucene.document.StringField;
+//import org.apache.lucene.document.TextField;
+//import org.apache.lucene.queryparser.classic.QueryParser;
+//import org.apache.lucene.util.Version;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 
