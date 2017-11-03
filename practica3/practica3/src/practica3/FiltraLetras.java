@@ -6,102 +6,75 @@
 package practica3;
 
 import java.io.IOException;
-import java.io.Reader;
-import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 
 /**
  *
  * @author Valenz
  */
-public class FiltraLetras extends Tokenizer{
+public class FiltraLetras extends TokenFilter {
 
+    /* The constructor for our custom token filter just calls the TokenFilter
+     * constructor; that constructor saves the token stream in a variable named
+     * this.input.
+     */
+    public FiltraLetras(TokenStream tokenStream) {
+        super(tokenStream);
+    }
+
+    /* Like the PlusSignTokenizer class, we are going to save the text of the
+     * current token in a CharTermAttribute object. In addition, we are going
+     * to use a PositionIncrementAttribute object to store the position
+     * increment of the token. Lucene uses this latter attribute to determine
+     * the position of a token. Given a token stream with "This", "is", "",
+     * ”some", and "text", we are going to ensure that "This" is saved at
+     * position 1, "is" at position 2, "some" at position 3, and "text" at
+     * position 4. Note that we have completely ignored the empty string at
+     * what was position 3 in the original stream.
+     */
     protected CharTermAttribute charTermAttribute =
         addAttribute(CharTermAttribute.class);
+    protected PositionIncrementAttribute positionIncrementAttribute =
+        addAttribute(PositionIncrementAttribute.class);
 
-    /* This is the important function to override from the Tokenizer class. At
-     * each call, it should set the value of this.charTermAttribute to the text
-     * of the next token. It returns true if a new token is generated and false
-     * if there are no more tokens remaining.
+    /* Like we did in the PlusSignTokenizer class, we need to override the
+     * incrementToken() function to save the attributes of the current token.
+     * We are going to pass over any tokens that are empty strings and save
+     * all others without modifying them. This function should return true if
+     * a new token was generated and false if the last token was passed.
      */
     @Override
     public boolean incrementToken() throws IOException {
 
-        // Clear anything that is already saved in this.charTermAttribute
-        this.charTermAttribute.setEmpty();
+        // Loop over tokens in the token stream to find the next one
+        // that is not empty
+        String nextToken = null;
+        while (nextToken == null) {
 
-        // Get the position of the next + symbol
-        int nextIndex = this.stringToTokenize.indexOf('+', this.position);
+            // Reached the end of the token stream being processed
+            if ( ! this.input.incrementToken()) {
+                return false;
+            }
 
-        // Execute this block if a plus symbol was found. Save the token
-        // and the position to start at when incrementToken() is next
-        // called.
-        if (nextIndex != -1) {
-            String nextToken = this.stringToTokenize.substring(
-                this.position, nextIndex);
-            this.charTermAttribute.append(nextToken);
-            this.position = nextIndex + 1;
-            return true;
-        }
+            // Get text of the current token and remove any
+            // leading/trailing whitespace.
+            String currentTokenInStream =
+                this.input.getAttribute(CharTermAttribute.class)
+                    .toString().trim();
 
-        // Execute this block if no more + signs are found, but there is
-        // still some text remaining in the string. For example, this saves
-        // “text" in "This+is++some+text".
-        else if (this.position < this.stringToTokenize.length()) {
-            String nextToken =
-                this.stringToTokenize.substring(this.position);
-            this.charTermAttribute.append(nextToken);
-            this.position = this.stringToTokenize.length();
-            return true;
-        }
-
-        // Execute this block if no more tokens exist in the string.
-        else {
-            return false;
-        }
-    }
-
-    /* This is the constructor for our custom tokenizer class. It takes all
-     * information from a java.io.Reader object and stores it in a string. If
-     * you are expecting very large blocks of text, you might want to think
-     * about using a buffer and saving chunks from the reader whenever
-     * incrementToken() is called. This function throws a RuntimeException when
-     * an IOException is raised - you can choose how you want to deal with the
-     * IOException, but for our purposes, we do not need to try to recover
-     * from it.
-     */
-    public FiltraLetras(Reader reader) {
-        super(reader);
-        int numChars;
-        char[] buffer = new char[1024];
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            while ((numChars =
-                reader.read(buffer, 0, buffer.length)) != -1) {
-                stringBuilder.append(buffer, 0, numChars);
+            // Save the token if it is not an empty string
+            if (currentTokenInStream.length() > 1) { //cambie el o por 1
+                nextToken = currentTokenInStream;
             }
         }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        this.stringToTokenize = stringBuilder.toString();
+
+        // Save the current token
+        this.charTermAttribute.setEmpty().append(nextToken);
+        this.positionIncrementAttribute.setPositionIncrement(1);
+        return true;
     }
-
-    /* Reset the stored position for this object when reset() is called.
-     */
-    @Override
-    public void reset() throws IOException {
-        super.reset();
-        this.position = 0;
-    }
-
-    /* This object stores the string that we are turning into tokens. We will
-     * process its content as we call the incrementToken() function.
-     */
-    protected String stringToTokenize;
-
-    /* This stores the current position in this.stringToTokenize. We will
-     * increment its value as we call the incrementToken() function.
-     */
-    protected int position = 0;
 }

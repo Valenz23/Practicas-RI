@@ -1,11 +1,5 @@
-t,2;
-e,2;
+that,1;
 cats,1;
 same,1;
-s,1;
-d,1;
-g,1;
 things,1;
-h,1;
 eat,1;
-o,1;
