@@ -21,6 +21,10 @@ public class FiltraLetras extends TokenFilter {
      * constructor; that constructor saves the token stream in a variable named
      * this.input.
      */
+    
+    /* El constructor llama a TokenFilter
+     *
+     */
     public FiltraLetras(TokenStream tokenStream) {
         super(tokenStream);
     }
@@ -66,7 +70,7 @@ public class FiltraLetras extends TokenFilter {
                     .toString().trim();
         
             // Save the token if it is not an empty string
-            if (currentTokenInStream.length() > 1) { //cambie el o por 1
+            if (currentTokenInStream.length() > 1) { //cambio el 0 por 1
                 nextToken = currentTokenInStream;
             }
         }

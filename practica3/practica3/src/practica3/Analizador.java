@@ -39,7 +39,7 @@ public class Analizador extends Analyzer{
         TokenStream filter = new WordDelimiterFilter(tokenizer, 0, CharArraySet.EMPTY_SET);
         filter = new LowerCaseFilter(filter);
         filter = new FiltraLetras(filter);
-        filter = new StopFilter(filter, CharArraySet.EMPTY_SET);        
+        filter = new StopFilter(filter, CharArraySet.EMPTY_SET);
         
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         
