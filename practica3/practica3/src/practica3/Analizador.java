@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package practica3;
+
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -11,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.LowerCaseFilter;
@@ -24,10 +27,15 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
  *
  * @author Valenz
  */
-/*************************************************************************
-Analizador que separa por espacios en blanco, quita signos que no sean letras,
+
+
+/******************************************************************************\
+|                            ANALIZADOR PROPIO                                 |
+\******************************************************************************/
+/*
+* nalizador que separa por espacios en blanco, quita signos que no sean letras,
 * pone los tokens en minusculas y quita las palabras vacias
-***************************************************************************/
+*/
 public class Analizador extends Analyzer{
     
     Set<String> pVacias;
@@ -53,10 +61,11 @@ public class Analizador extends Analyzer{
         filter = new LowerCaseFilter(filter);
         filter = new FiltraLetras(filter);
         filter = new StopFilter(filter, CharArraySet.copy(pVacias));        
+
         
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         
         return new TokenStreamComponents(tokenizer,filter);
-    }
-    
+
+    } 
 }
