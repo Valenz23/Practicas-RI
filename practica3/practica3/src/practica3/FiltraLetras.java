@@ -1,7 +1,7 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    * and open the template in the editor.
  */
 package practica3;
 
@@ -71,7 +71,7 @@ public class FiltraLetras extends TokenFilter {
                 nextToken = currentTokenInStream;
             }
         }
-
+        
         // Save the current token
         this.charTermAttribute.setEmpty().append(nextToken);
         this.positionIncrementAttribute.setPositionIncrement(1);

@@ -285,7 +285,7 @@ public class Practica3{
         System.out.println("------------------------------------------------------------------------------------------------"); 
         
         //Creamos un objeto Practica1 y le pasamos la direccion del directorio que nos interesa "indexar"  
-        String path = "ejemplos";
+        String path = "libros";
         Practica3 madn = new Practica3("../"+path);                     
 
         //creamos una carpeta que contendrá los resultados
