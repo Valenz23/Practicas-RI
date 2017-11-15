@@ -13,16 +13,21 @@ package practica4;
 |                                 LIBRERIAS                                    |
 \****************************************************************************/
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.nio.file.Paths;
 import org.xml.sax.ContentHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import javax.sound.midi.Patch;
 import org.xml.sax.SAXException;
 
 //librerias de tika
@@ -38,10 +43,14 @@ import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
-import static practica4.Practica4.imprimirConteo;
-import static practica4.Practica4.parsearDatos;
 
 /****************************************************************************\
 |                              CLASE PRINCIPAL                                 |
@@ -53,27 +62,27 @@ public class Practica4{
     \**************************************************************************/
     
     //Esta lista contiene la direccion de todos los documentos de un directorio
-    ArrayList<String> lDocs = new ArrayList<>(); 
+ /*  ArrayList<String> lDocs = new ArrayList<>(); 
 
     //Hash map contenedor de las palabras del texto y el número de iteraciones
     static HashMap<String, Integer> conteo = new HashMap<>();
     
     //ArrayList de Palabras, para poder ordenar el contenido del HashMap
-    static ArrayList<Palabras> listaOrdenada = new ArrayList<>();
+    static ArrayList<Palabras> listaOrdenada = new ArrayList<>();*/
     
     /**************************************************************************\
     |                            CONSTRUCTOR                                   |
     | @param c -> String que contiene la direccion del fichero                 |
     \**************************************************************************/
-    public Practica4(String c) {
+  /*  public Practica4(String c) {
         addFile(c);
-    } 
+    } */
     
     
     /**************************************************************************\
     |      FUNCION PARA LEER LOS ARCHIVOS DEL DIRECTORIO RECURSIVAMENTE        |
     \**************************************************************************/
-    private void addFile(String s){
+ /*   private void addFile(String s){
         File file = new File(s);
         File[] files = file.listFiles();        
         for (File f : files) {
@@ -86,7 +95,7 @@ public class Practica4{
                 //System.out.println(str);
             }
         }
-    }
+    }*/
     
     
     /**************************************************************************\
@@ -98,7 +107,7 @@ public class Practica4{
     | @throws org.xml.sax.SAXException*                                        |
     | @throws org.apache.tika.exception.TikaException                          |
     \**************************************************************************/
-    public static void parsearDatos(File file, Analyzer ana) throws FileNotFoundException, IOException, SAXException, TikaException {
+  /*  public static void parsearDatos(File file, Analyzer ana) throws FileNotFoundException, IOException, SAXException, TikaException {
 
         //usamos tika para sacar los datos del fichero
         InputStream in = new FileInputStream(file);         
@@ -110,7 +119,7 @@ public class Practica4{
         
         //llamamos a la funcion que usa lucene
         Tokenizar(ana, ch.toString());       
-    }
+    }*/
     
     
     /**************************************************************************\
@@ -120,7 +129,7 @@ public class Practica4{
     |                                                                          |
     | @throws java.io.FileNotFoundException                                    |
     \**************************************************************************/
-    public static void imprimirConteo(File f, String s) throws FileNotFoundException{
+   /* public static void imprimirConteo(File f, String s) throws FileNotFoundException{
         
         //Pasando datos a Array para ser ordenado.
         conteo.entrySet().stream().map((mapita) -> {
@@ -148,7 +157,7 @@ public class Practica4{
         conteo.clear();
         listaOrdenada.clear();
         
-    }
+    }*/
     
     
     /**************************************************************************\
@@ -156,7 +165,7 @@ public class Practica4{
     | @param an -> analizador                                                  |
     | @param str -> string a analizar                                          |
     \**************************************************************************/ 
-    public static void Tokenizar(Analyzer an, String str){
+    /*public static void Tokenizar(Analyzer an, String str){
         
         try{               
             try (TokenStream stream = an.tokenStream(null, new StringReader(str))) {
@@ -173,21 +182,66 @@ public class Practica4{
         }
         catch(IOException e){ throw new RuntimeException(); }        
         
-    }
+    }*/
     
     
     /**************************************************************************\
     |         FUNCION QUE  PALABRAS ALMACENA EN EL HASHMAP                     |
     | @param str -> key a almacenar                                            |
     \**************************************************************************/     
-    public static void Almacenar(String str){
+   /* public static void Almacenar(String str){
         if(!conteo.containsKey(str)){
             conteo.compute(str, (k,v) -> 1);
         }else{
             conteo.compute(str, (k,v) -> v+1);
         } 
-    }
+    }*/
     
+    /**************************************************************************\
+    |         FUNCION PARA OBTENER LOS DOCUMENTOS A INDEXAR                    |
+    | @param path -> lugar donde estan los fichero a indexar                   |
+    \**************************************************************************/   
+    public static void obtenerDocs(String path, List<Document> docs){        
+        
+        File file = new File(path);
+        File[] files = file.listFiles();        
+        for (File f : files) {
+            if (f.isDirectory()){
+                obtenerDocs(f.getPath(),docs);
+            }else{
+                System.out.println("Obteniendo documentos de "+f.getName());
+                
+                String fichero = f.getPath();
+                String linea;
+                String[] cabecera, datos;
+                
+                try (BufferedReader br = new BufferedReader(new FileReader(fichero))) {
+                    linea = br.readLine();
+                    cabecera = linea.split(",");                    
+                    while ((linea = br.readLine()) != null) {         
+                                                
+                        datos = linea.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                        
+                        //TODO hacer cosas aqui, pero no se cuales
+                        Document neu = new Document();
+                        neu.add(new StringField(cabecera[0], datos[0], Field.Store.YES)); //autores
+                        neu.add(new StringField(cabecera[1], datos[1], Field.Store.YES)); //titulo
+                        neu.add(new StringField(cabecera[2], datos[2], Field.Store.YES)); //año
+                        neu.add(new StringField(cabecera[3], datos[3], Field.Store.YES)); //source_title
+                        neu.add(new StringField(cabecera[4], datos[4], Field.Store.YES)); //citas -> no sale nada
+                        neu.add(new StringField(cabecera[5], datos[5], Field.Store.YES)); //links
+                        neu.add(new StringField(cabecera[6], datos[6], Field.Store.YES)); //resumen
+                        neu.add(new StringField(cabecera[7], datos[7], Field.Store.YES)); //author keywords
+                        neu.add(new StringField(cabecera[8], datos[8], Field.Store.YES)); //index keywords
+                        neu.add(new StringField(cabecera[9], datos[9], Field.Store.YES)); //eid
+                        
+                        docs.add(neu);
+                    }
+                } 
+                catch (IOException e) {}                
+            }
+        }              
+    }
     
     /**************************************************************************\
     |                             FUNCION MAIN                                 |
@@ -195,7 +249,7 @@ public class Practica4{
     | @throws java.lang.Exception                                              |
     \**************************************************************************/
     public static void main(String[] args) throws Exception {
-        
+       /* 
         //Creamos varios analizadores de Lucene
         Analyzer whitespace = new WhitespaceAnalyzer();
         Analyzer simple = new SimpleAnalyzer();
@@ -254,6 +308,32 @@ public class Practica4{
             imprimirConteo(f,theDir+"/Conteo-Analizador");  
         }      
         System.out.println("------------------------------------------------------------------------------------------------");  
-        System.out.println("Programa finalizado");
+        System.out.println("Programa finalizado");*/
+       
+        String INDEX_DIR = "../resultados/index";
+        String path = "../prueba";
+        
+        List<Document> docs = new ArrayList<>();
+        int nDocs=0;
+
+        StandardAnalyzer analyzer = new StandardAnalyzer();       
+        FSDirectory dir = FSDirectory.open(Paths.get(INDEX_DIR));
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);       
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+
+        IndexWriter writer = new IndexWriter(dir, config);
+
+        obtenerDocs(path,docs);      
+        long startTime = System.currentTimeMillis();
+        for (Document doc : docs) {
+            writer.addDocument(doc);
+            nDocs++;
+        }        
+        writer.commit();
+        writer.close();
+        long endTime = System.currentTimeMillis();
+        
+        System.out.println(nDocs+" ficheros indexados en: "+(endTime-startTime)+" ms");
+        
     }
 }
