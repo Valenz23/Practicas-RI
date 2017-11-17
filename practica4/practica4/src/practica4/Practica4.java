@@ -46,6 +46,7 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
@@ -201,13 +202,15 @@ public class Practica4{
     |         FUNCION PARA OBTENER LOS DOCUMENTOS A INDEXAR                    |
     | @param path -> lugar donde estan los fichero a indexar                   |
     \**************************************************************************/   
-    public static void obtenerDocs(String path, List<Document> docs){        
+    public static int obtenerDocs(String path, IndexWriter writer){   
+        
+        
         
         File file = new File(path);
         File[] files = file.listFiles();        
         for (File f : files) {
             if (f.isDirectory()){
-                obtenerDocs(f.getPath(),docs);
+                obtenerDocs(f.getPath(),writer);
             }else{
                 System.out.println("Obteniendo documentos de "+f.getName());
                 
@@ -222,35 +225,29 @@ public class Practica4{
                                                 
                         datos = linea.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                         
-                        //TODO hacer cosas aqui, pero no se cuales
                         Document neu = new Document();
-                        datos[0]=datos[0].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[0], datos[0], Field.Store.YES)); //autores
-                        datos[1]=datos[1].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[1], datos[1], Field.Store.YES)); //titulo
-                        datos[2]=datos[2].replaceAll("\"", "");                        
-                        neu.add(new StringField(cabecera[2], datos[2], Field.Store.YES)); //año
-                        datos[3]=datos[3].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[3], datos[3], Field.Store.YES)); //source_title
-                        datos[4]=datos[4].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[4], datos[4], Field.Store.YES)); //citas -> no sale nada
-                        datos[5]=datos[5].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[5], datos[5], Field.Store.YES)); //links
-                        datos[6]=datos[6].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[6], datos[6], Field.Store.YES)); //resumen
-                        datos[7]=datos[7].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[7], datos[7], Field.Store.YES)); //author keywords
-                        datos[8]=datos[8].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[8], datos[8], Field.Store.YES)); //index keywords
-                        datos[9]=datos[9].replaceAll("\"", "");
-                        neu.add(new StringField(cabecera[9], datos[9], Field.Store.YES)); //eid
+                        neu.add(new TextField(cabecera[0], datos[0], Field.Store.YES)); //autores
+                        neu.add(new TextField(cabecera[1], datos[1], Field.Store.YES)); //titulo
+                        neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //año //TODO cambiar a intpoint
+                        neu.add(new TextField(cabecera[3], datos[3], Field.Store.YES)); //source_title
+                        neu.add(new TextField(cabecera[4], datos[4], Field.Store.YES)); //citas -> no sale nada
+                        neu.add(new TextField(cabecera[5], datos[5], Field.Store.YES)); //links
+                        neu.add(new TextField(cabecera[6], datos[6], Field.Store.YES)); //resumen
+                        neu.add(new TextField(cabecera[7], datos[7], Field.Store.YES)); //author keywords
+                        neu.add(new TextField(cabecera[8], datos[8], Field.Store.YES)); //index keywords
+                        neu.add(new TextField(cabecera[9], datos[9], Field.Store.YES)); //eid
                         
-                        docs.add(neu);
+                        asd++;
+                        //System.out.println(nDocs);
+                        
+                        writer.addDocument(neu);
+                        
                     }
                 } 
                 catch (IOException e) {}                
             }
-        }              
+        }   
+        return asd;
     }
     
     /**************************************************************************\
@@ -322,10 +319,10 @@ public class Practica4{
        
         String INDEX_DIR = "../resultados/index";
         //String path = "../prueba";
-        String path = "../consultas SCOPUS";
+        String path = "../prueba";
         
-        List<Document> docs = new ArrayList<>();
-        int nDocs=0;
+        //List<Document> docs = new ArrayList<>();
+        //int nDocs=0;
 
         Analizador analyzer = new Analizador();       
         FSDirectory dir = FSDirectory.open(Paths.get(INDEX_DIR));
@@ -334,12 +331,8 @@ public class Practica4{
 
         IndexWriter writer = new IndexWriter(dir, config);
 
-        obtenerDocs(path,docs);      
-        long startTime = System.currentTimeMillis();
-        for (Document doc : docs) {
-            writer.addDocument(doc);
-            nDocs++;
-        }        
+        long startTime = System.currentTimeMillis();    
+        int nDocs = obtenerDocs(path,writer);                
         writer.commit();
         writer.close();
         long endTime = System.currentTimeMillis();
