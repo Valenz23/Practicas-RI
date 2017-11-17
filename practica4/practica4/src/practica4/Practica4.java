@@ -13,6 +13,7 @@ package practica4;
 |                                 LIBRERIAS                                    |
 \****************************************************************************/
 
+import com.sun.xml.internal.ws.util.pipe.StandalonePipeAssembler;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +28,7 @@ import org.xml.sax.ContentHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.sound.midi.Patch;
 import org.xml.sax.SAXException;
 
@@ -39,8 +41,12 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.standard.ClassicAnalyzer;
+import org.apache.lucene.analysis.standard.UAX29URLEmailAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.document.Document;
@@ -234,15 +240,18 @@ public class Practica4{
                         neu.add(new TextField(cabecera[0], datos[0], Field.Store.YES)); //autores
                         neu.add(new TextField(cabecera[1], datos[1], Field.Store.YES)); //titulo
                         
-                       /* neu.add(new IntPoint(cabecera[2], Integer.parseInt(datos[2]))); //año no funciona
+                        neu.add(new IntPoint(cabecera[2], Integer.parseInt(datos[2]))); //año 
                         neu.add(new StoredField(cabecera[2],datos[2])); //año;*/
-                        neu.add(new StringField(cabecera[2], datos[2], Field.Store.YES)); //año
+                        neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //año
                         
                         neu.add(new TextField(cabecera[3], datos[3], Field.Store.YES)); //source_title
                         
-                        /*neu.add(new IntPoint(cabecera[4], Integer.parseInt(datos[4]))); //citas nofunciona
+                        int date=0; //si no hago esto, si el campo esta vacio peta
+                        if(!datos[4].isEmpty())
+                            date = Integer.parseInt(datos[4]);                        
+                        neu.add(new IntPoint(cabecera[4], date)); //citas
                         neu.add(new StoredField(cabecera[4], datos[4])); //citas*/
-                        neu.add(new StringField(cabecera[4], datos[4], Field.Store.YES)); //citas
+                        neu.add(new TextField(cabecera[4], String.valueOf(date), Field.Store.YES)); //citas
                         
                         neu.add(new TextField(cabecera[5], datos[5], Field.Store.YES)); //links -> usar analizador cxuahdj
                         neu.add(new TextField(cabecera[6], datos[6], Field.Store.YES)); //resumen
@@ -326,26 +335,34 @@ public class Practica4{
         System.out.println("Programa finalizado");*/
        
         String INDEX_DIR = "../resultados/index";
-        String path = "../prueba";
-        //String path = "../consultas SCOPUS";
+        //String path = "../prueba";
+        String path = "../consultas SCOPUS";
 
         
         //TODO multianalizador
-        Analizador analyzer = new Analizador();       
+        //Analizador analyzer = new Analizador(); 
+        
+        Map<String,Analyzer> mip = new HashMap<>(); //se crea un MAP con analizadores para usar cada uno con un campo distinto del indice
+        mip.put("Link", new UAX29URLEmailAnalyzer());
+        mip.put("EID", new KeywordAnalyzer());        
+        mip.put("Cited by", new StandardAnalyzer());
+
+       //cambiar a StandardAnalyzer() si queremos almacenar letras sueltas
+       //por defecto se usa mi analizador
+        PerFieldAnalyzerWrapper pefe = new PerFieldAnalyzerWrapper(new Analizador(), mip);
+        
         FSDirectory dir = FSDirectory.open(Paths.get(INDEX_DIR));
-        IndexWriterConfig config = new IndexWriterConfig(analyzer);       
+        IndexWriterConfig config = new IndexWriterConfig(pefe);       
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
 
-        IndexWriter writer = new IndexWriter(dir, config);
-
-        long startTime = System.currentTimeMillis();    
-        obtenerDocs(path,writer);                
-        writer.commit();
-        
-        long endTime = System.currentTimeMillis();
-        
-        System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
-        
-        writer.close();        
+        try (IndexWriter writer = new IndexWriter(dir, config)) {
+            long startTime = System.currentTimeMillis();
+            obtenerDocs(path,writer);
+            writer.commit();
+            
+            long endTime = System.currentTimeMillis();
+            
+            System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
+        }        
     }
 }
