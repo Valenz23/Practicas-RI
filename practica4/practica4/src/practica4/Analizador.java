@@ -24,6 +24,7 @@ import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 
@@ -45,7 +46,6 @@ public class Analizador extends Analyzer{
         BufferedReader b = new BufferedReader(f);
         String cadena;
         while((cadena = b.readLine())!=null) {
-            //System.out.println(cadena);
             pVacias.add(cadena);
         }
         b.close();
@@ -56,12 +56,11 @@ public class Analizador extends Analyzer{
     protected Analyzer.TokenStreamComponents createComponents(String string) {
         
         Tokenizer tokenizer = new StandardTokenizer();
-        TokenStream filter = new WordDelimiterFilter(tokenizer, 0, CharArraySet.EMPTY_SET);
-        filter = new LowerCaseFilter(filter);
-        filter = new FiltraLetras(filter);
-        filter = new StopFilter(filter, CharArraySet.copy(pVacias));        
-        
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        TokenStream filter = new WordDelimiterFilter(tokenizer, 0, CharArraySet.EMPTY_SET); //separa las palabras por comas, puntos ...
+        filter = new LowerCaseFilter(filter); //pone en miusculas
+        filter = new FiltraLetras(filter); //quita las letras que estan solas
+        filter = new StopFilter(filter, CharArraySet.copy(pVacias)); //quita las palabras vacias inglesas
+        filter = new PorterStemFilter(filter); //hace stemming en inglés
         
         return new Analyzer.TokenStreamComponents(tokenizer,filter);
     }
