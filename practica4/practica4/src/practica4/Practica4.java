@@ -242,22 +242,22 @@ public class Practica4{
                         
                         neu.add(new IntPoint(cabecera[2], Integer.parseInt(datos[2]))); //año 
                         neu.add(new StoredField(cabecera[2],datos[2])); //año;*/
-                        neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //año
+                        neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //necesario si queremos hacer busquedas con el
                         
                         neu.add(new TextField(cabecera[3], datos[3], Field.Store.YES)); //source_title
                         
-                        int date=0; //si no hago esto, si el campo esta vacio peta
+                        int date=0; //si no hago esto, si el campo esta vacio falla
                         if(!datos[4].isEmpty())
                             date = Integer.parseInt(datos[4]);                        
                         neu.add(new IntPoint(cabecera[4], date)); //citas
                         neu.add(new StoredField(cabecera[4], datos[4])); //citas*/
-                        neu.add(new TextField(cabecera[4], String.valueOf(date), Field.Store.YES)); //citas
+                        neu.add(new TextField(cabecera[4], String.valueOf(date), Field.Store.YES)); //necesario si queremos hacer busquedas con el
                         
-                        neu.add(new TextField(cabecera[5], datos[5], Field.Store.YES)); //links -> usar analizador cxuahdj
+                        neu.add(new TextField(cabecera[5], datos[5], Field.Store.YES)); //links 
                         neu.add(new TextField(cabecera[6], datos[6], Field.Store.YES)); //resumen
                         neu.add(new TextField(cabecera[7], datos[7], Field.Store.YES)); //author keywords
                         neu.add(new TextField(cabecera[8], datos[8], Field.Store.YES)); //index keywords
-                        neu.add(new TextField(cabecera[9], datos[9], Field.Store.YES)); //eid -> usar analizador que no haga nada
+                        neu.add(new TextField(cabecera[9], datos[9], Field.Store.YES)); //eid
                         
                         writer.addDocument(neu);                        
                     }
@@ -335,33 +335,29 @@ public class Practica4{
         System.out.println("Programa finalizado");*/
        
         String INDEX_DIR = "../resultados/index";
-        //String path = "../prueba";
-        String path = "../consultas SCOPUS";
-
-        
-        //TODO multianalizador
-        //Analizador analyzer = new Analizador(); 
+        String path = "../prueba";
+        //String path = "../consultas SCOPUS";
         
         Map<String,Analyzer> mip = new HashMap<>(); //se crea un MAP con analizadores para usar cada uno con un campo distinto del indice
-        mip.put("Link", new UAX29URLEmailAnalyzer());
-        mip.put("EID", new KeywordAnalyzer());        
-        mip.put("Cited by", new StandardAnalyzer());
+        mip.put("Link", new UAX29URLEmailAnalyzer()); //para guardarlos enlaces enteros
+        mip.put("EID", new KeywordAnalyzer());  //para que no haga nada
+        mip.put("Cited by", new StandardAnalyzer()); //para que no borre el numero
 
        //cambiar a StandardAnalyzer() si queremos almacenar letras sueltas
        //por defecto se usa mi analizador
         PerFieldAnalyzerWrapper pefe = new PerFieldAnalyzerWrapper(new Analizador(), mip);
         
+        //creacion del indice
         FSDirectory dir = FSDirectory.open(Paths.get(INDEX_DIR));
         IndexWriterConfig config = new IndexWriterConfig(pefe);       
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
 
+        //lectura de doucmentos e insercion en el indice
         try (IndexWriter writer = new IndexWriter(dir, config)) {
             long startTime = System.currentTimeMillis();
             obtenerDocs(path,writer);
-            writer.commit();
-            
-            long endTime = System.currentTimeMillis();
-            
+            writer.commit();            
+            long endTime = System.currentTimeMillis();            
             System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
         }        
     }
