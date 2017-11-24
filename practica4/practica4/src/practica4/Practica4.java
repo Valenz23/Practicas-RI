@@ -30,6 +30,8 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
@@ -43,13 +45,13 @@ public class Practica4{
     |         FUNCION PARA OBTENER LOS DOCUMENTOS A INDEXAR                    |
     | @param path -> lugar donde estan los fichero a indexar                   |
     \**************************************************************************/   
-    public static void obtenerDocs(String path, IndexWriter writer){   
+    public static void obtenerDocs(String path, IndexWriter writer, DirectoryTaxonomyWriter taxoWriter){   
         
         File file = new File(path);
         File[] files = file.listFiles();        
         for (File f : files) {
             if (f.isDirectory()){
-                obtenerDocs(f.getPath(),writer);
+                obtenerDocs(f.getPath(),writer, taxoWriter);
             }else{
                 System.out.println("Obteniendo documentos de "+f.getName());
                 
@@ -71,7 +73,7 @@ public class Practica4{
                         
                         neu.add(new IntPoint(cabecera[2], Integer.parseInt(datos[2]))); //año 
                         neu.add(new StoredField(cabecera[2],datos[2])); //año;*/
-                        neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //necesario si queremos hacer busquedas con el
+                        //neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //necesario si queremos hacer busquedas con el
                         
                         neu.add(new TextField(cabecera[3], datos[3], Field.Store.YES)); //source_title
                         
@@ -80,7 +82,7 @@ public class Practica4{
                             date = Integer.parseInt(datos[4]);                        
                         neu.add(new IntPoint(cabecera[4], date)); //citas
                         neu.add(new StoredField(cabecera[4], datos[4])); //citas*/
-                        neu.add(new TextField(cabecera[4], String.valueOf(date), Field.Store.YES)); //necesario si queremos hacer busquedas con el
+                        //neu.add(new TextField(cabecera[4], String.valueOf(date), Field.Store.YES)); //necesario si queremos hacer busquedas con el
                         
                         neu.add(new TextField(cabecera[5], datos[5], Field.Store.YES)); //links 
                         neu.add(new TextField(cabecera[6], datos[6], Field.Store.YES)); //resumen
@@ -122,19 +124,23 @@ public class Practica4{
         FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
         IndexWriterConfig config = new IndexWriterConfig(pefe);       
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        IndexWriter writer = new IndexWriter(indexDir, config);
 
         //Creando el índice de Facetas
         FSDirectory taxoDir = FSDirectory.open(Paths.get(FACET_DIR));
         FacetsConfig fconfig = new FacetsConfig();
-        
+        DirectoryTaxonomyWriter taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
         
         //lectura de doucmentos e insercion en el indice
-        try (IndexWriter writer = new IndexWriter(indexDir, config)) {
-            long startTime = System.currentTimeMillis();
-            obtenerDocs(path,writer);
-            writer.commit();            
-            long endTime = System.currentTimeMillis();            
-            System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
-        }        
+        long startTime = System.currentTimeMillis();
+        obtenerDocs(path,writer, taxoWriter);
+        writer.commit();            
+        long endTime = System.currentTimeMillis();            
+        System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
+        
+        
+        //Cerrando lecturas
+        writer.close();
+        taxoWriter.close();
     }
 }
