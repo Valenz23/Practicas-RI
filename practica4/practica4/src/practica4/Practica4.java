@@ -105,6 +105,7 @@ public class Practica4{
        
        
         String INDEX_DIR = "../resultados/index";
+        String FACET_DIR = "../resultados/facet";
         String path = "../prueba";
         //String path = "../consultas SCOPUS";
         
@@ -118,12 +119,17 @@ public class Practica4{
         PerFieldAnalyzerWrapper pefe = new PerFieldAnalyzerWrapper(new Analizador(), mip);
         
         //creacion del indice
-        FSDirectory dir = FSDirectory.open(Paths.get(INDEX_DIR));
+        FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
         IndexWriterConfig config = new IndexWriterConfig(pefe);       
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
 
+        //Creando el índice de Facetas
+        FSDirectory taxoDir = FSDirectory.open(Paths.get(FACET_DIR));
+        FacetsConfig fconfig = new FacetsConfig();
+        
+        
         //lectura de doucmentos e insercion en el indice
-        try (IndexWriter writer = new IndexWriter(dir, config)) {
+        try (IndexWriter writer = new IndexWriter(indexDir, config)) {
             long startTime = System.currentTimeMillis();
             obtenerDocs(path,writer);
             writer.commit();            
