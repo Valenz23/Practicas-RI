@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 //Librerias de Lucene
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -30,26 +31,29 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.facet.FacetField;
+import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 
-/****************************************************************************\
+/******************************************************************************\
 |                              CLASE PRINCIPAL                                 |
-\****************************************************************************/
+\******************************************************************************/
 public class Practica4{
     
     /**************************************************************************\
     |         FUNCION PARA OBTENER LOS DOCUMENTOS A INDEXAR                    |
     | @param path -> lugar donde estan los fichero a indexar                   |
     \**************************************************************************/   
-    public static void obtenerDocs(String path, IndexWriter writer){   
+    public static void obtenerDocs(String path, IndexWriter writer, DirectoryTaxonomyWriter taxoWriter, FacetsConfig fconfig){   
         
         File file = new File(path);
         File[] files = file.listFiles();        
         for (File f : files) {
             if (f.isDirectory()){
-                obtenerDocs(f.getPath(),writer);
+                obtenerDocs(f.getPath(),writer, taxoWriter, fconfig);
             }else{
                 System.out.println("Obteniendo documentos de "+f.getName());
                 
@@ -67,11 +71,13 @@ public class Practica4{
                         Document neu = new Document();                       
                         
                         neu.add(new TextField(cabecera[0], datos[0], Field.Store.YES)); //autores
+                        facetAddAuthors(datos[0], neu);
                         neu.add(new TextField(cabecera[1], datos[1], Field.Store.YES)); //titulo
                         
                         neu.add(new IntPoint(cabecera[2], Integer.parseInt(datos[2]))); //año 
+                        facetAddYear(datos[2], neu);
                         neu.add(new StoredField(cabecera[2],datos[2])); //año;*/
-                        neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //necesario si queremos hacer busquedas con el
+                        //neu.add(new TextField(cabecera[2], datos[2], Field.Store.YES)); //necesario si queremos hacer busquedas con el
                         
                         neu.add(new TextField(cabecera[3], datos[3], Field.Store.YES)); //source_title
                         
@@ -80,7 +86,7 @@ public class Practica4{
                             date = Integer.parseInt(datos[4]);                        
                         neu.add(new IntPoint(cabecera[4], date)); //citas
                         neu.add(new StoredField(cabecera[4], datos[4])); //citas*/
-                        neu.add(new TextField(cabecera[4], String.valueOf(date), Field.Store.YES)); //necesario si queremos hacer busquedas con el
+                        //neu.add(new TextField(cabecera[4], String.valueOf(date), Field.Store.YES)); //necesario si queremos hacer busquedas con el
                         
                         neu.add(new TextField(cabecera[5], datos[5], Field.Store.YES)); //links 
                         neu.add(new TextField(cabecera[6], datos[6], Field.Store.YES)); //resumen
@@ -88,12 +94,39 @@ public class Practica4{
                         neu.add(new TextField(cabecera[8], datos[8], Field.Store.YES)); //index keywords
                         neu.add(new TextField(cabecera[9], datos[9], Field.Store.YES)); //eid
                         
-                        writer.addDocument(neu);                        
+                        writer.addDocument(fconfig.build(taxoWriter, neu));                        
                     }
                 } 
                 catch (IOException e) {}                
             }
         }   
+    }
+    
+    /**************************************************************************\
+    |                    FUNCION PARA AÑADIR FACETAS AUTOR                         |
+    | @param  ->                    |
+    \**************************************************************************/
+    public static void facetAddAuthors(String data, Document doc){
+        StringTokenizer st = new StringTokenizer(data);
+        
+        while(st.hasMoreTokens()){
+            //System.out.println(st.toString()); //pruebas
+            doc.add(new FacetField("Autor", st.toString()));
+            st.nextToken();
+        }
+    }
+    
+    /**************************************************************************\
+    |                    FUNCION PARA AÑADIR FACETAS AÑO                          |
+    | @param  ->                    |
+    \**************************************************************************/
+    public static void facetAddYear(String data, Document doc){
+        StringTokenizer st = new StringTokenizer(data);
+        while(st.hasMoreTokens()){
+            doc.add(new FacetField("Año", st.toString()));
+            //System.out.println("hola donPepito");
+            st.nextToken();
+        }
     }
     
     /**************************************************************************\
@@ -122,19 +155,25 @@ public class Practica4{
         FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
         IndexWriterConfig config = new IndexWriterConfig(pefe);       
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        IndexWriter writer = new IndexWriter(indexDir, config);
 
         //Creando el índice de Facetas
         FSDirectory taxoDir = FSDirectory.open(Paths.get(FACET_DIR));
         FacetsConfig fconfig = new FacetsConfig();
+        DirectoryTaxonomyWriter taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
         
+        fconfig.setMultiValued("Autor", true);
         
         //lectura de doucmentos e insercion en el indice
-        try (IndexWriter writer = new IndexWriter(indexDir, config)) {
-            long startTime = System.currentTimeMillis();
-            obtenerDocs(path,writer);
-            writer.commit();            
-            long endTime = System.currentTimeMillis();            
-            System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
-        }        
+        long startTime = System.currentTimeMillis();
+        obtenerDocs(path,writer, taxoWriter, fconfig);
+        writer.commit();            
+        long endTime = System.currentTimeMillis();            
+        System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
+        
+        
+        //Cerrando lecturas
+        writer.close();
+        taxoWriter.close();
     }
 }
