@@ -107,12 +107,10 @@ public class Practica4{
     | @param  ->                    |
     \**************************************************************************/
     public static void facetAddAuthors(String data, Document doc){
-        StringTokenizer st = new StringTokenizer(data);
-        
+        StringTokenizer st = new StringTokenizer(data);        
         while(st.hasMoreTokens()){
-            //System.out.println(st.toString()); //pruebas
-            doc.add(new FacetField("Autor", st.toString()));
-            st.nextToken();
+            String asd = st.nextToken().replaceAll("\\.", "").replaceAll("\\,", "");
+            doc.add(new FacetField("Autor", asd));            
         }
     }
     
@@ -123,9 +121,7 @@ public class Practica4{
     public static void facetAddYear(String data, Document doc){
         StringTokenizer st = new StringTokenizer(data);
         while(st.hasMoreTokens()){
-            doc.add(new FacetField("Año", st.toString()));
-            //System.out.println("hola donPepito");
-            st.nextToken();
+            doc.add(new FacetField("Año", st.nextToken()));
         }
     }
     
