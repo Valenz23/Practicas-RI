@@ -26,6 +26,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
+import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 
 
@@ -58,6 +59,7 @@ public class Analizador extends Analyzer{
         Tokenizer tokenizer = new StandardTokenizer();
         TokenStream filter = new WordDelimiterFilter(tokenizer, 0, CharArraySet.EMPTY_SET); //separa las palabras por comas, puntos ...
         filter = new LowerCaseFilter(filter); //pone en miusculas
+        filter = new StandardFilter(filter); //Quita acentos
         filter = new FiltraLetras(filter); //quita las letras que estan solas
         filter = new StopFilter(filter, CharArraySet.copy(pVacias)); //quita las palabras vacias inglesas
         filter = new PorterStemFilter(filter); //hace stemming en inglés
