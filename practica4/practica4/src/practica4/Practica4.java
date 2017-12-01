@@ -42,18 +42,23 @@ import org.apache.lucene.store.FSDirectory;
 |                              CLASE PRINCIPAL                                 |
 \******************************************************************************/
 public class Practica4{
+      
+    /* Variables globales */
+    private static IndexWriter writer;
+    private static DirectoryTaxonomyWriter taxoWriter;
+    private static FacetsConfig fconfig;
     
     /**************************************************************************\
     |         FUNCION PARA OBTENER LOS DOCUMENTOS A INDEXAR                    |
     | @param path -> lugar donde estan los fichero a indexar                   |
     \**************************************************************************/   
-    public static void obtenerDocs(String path, IndexWriter writer, DirectoryTaxonomyWriter taxoWriter, FacetsConfig fconfig){   
+    public static void obtenerDocs(String path){   
         
         File file = new File(path);
         File[] files = file.listFiles();        
         for (File f : files) {
             if (f.isDirectory()){
-                obtenerDocs(f.getPath(),writer, taxoWriter, fconfig);
+                obtenerDocs(f.getPath());
             }else{
                 System.out.println("Obteniendo documentos de "+f.getName());
                 
@@ -125,13 +130,16 @@ public class Practica4{
         }
     }
     
+    /***************************************************************************\
+     * FUNCION PARA CREAR INDICE
+    *****************************************************************************/
+    
     /**************************************************************************\
     |                             FUNCION MAIN                                 |
     | @param args                                                              |
     | @throws java.lang.Exception                                              |
     \**************************************************************************/
-    public static void main(String[] args) throws Exception {
-       
+    public static void main(String[] args) throws Exception {       
        
         String INDEX_DIR = "../resultados/index";
         String FACET_DIR = "../resultados/facet";
@@ -151,18 +159,18 @@ public class Practica4{
         FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
         IndexWriterConfig config = new IndexWriterConfig(pefe);       
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-        IndexWriter writer = new IndexWriter(indexDir, config);
+        writer = new IndexWriter(indexDir, config);
 
         //Creando el índice de Facetas
         FSDirectory taxoDir = FSDirectory.open(Paths.get(FACET_DIR));
-        FacetsConfig fconfig = new FacetsConfig();
-        DirectoryTaxonomyWriter taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
+        fconfig = new FacetsConfig();
+        taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
         
         fconfig.setMultiValued("Autor", true);
         
         //lectura de doucmentos e insercion en el indice
         long startTime = System.currentTimeMillis();
-        obtenerDocs(path,writer, taxoWriter, fconfig);
+        obtenerDocs(path);
         writer.commit();            
         long endTime = System.currentTimeMillis();            
         System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
