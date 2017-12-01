@@ -108,8 +108,8 @@ public class Practica4{
     }
     
     /**************************************************************************\
-    |                    FUNCION PARA AÑADIR FACETAS AUTOR                         |
-    | @param  ->                    |
+    |                    FUNCION PARA AÑADIR FACETAS AUTOR                     |
+    | @param  ->                                                               |
     \**************************************************************************/
     public static void facetAddAuthors(String data, Document doc){
         StringTokenizer st = new StringTokenizer(data);        
@@ -120,8 +120,8 @@ public class Practica4{
     }
     
     /**************************************************************************\
-    |                    FUNCION PARA AÑADIR FACETAS AÑO                          |
-    | @param  ->                    |
+    |                    FUNCION PARA AÑADIR FACETAS AÑO                       |
+    | @param  ->                                                               |
     \**************************************************************************/
     public static void facetAddYear(String data, Document doc){
         StringTokenizer st = new StringTokenizer(data);
@@ -130,9 +130,9 @@ public class Practica4{
         }
     }
     
-    /***************************************************************************\
-     * FUNCION PARA CREAR INDICE
-    *****************************************************************************/
+    /**************************************************************************\
+    |                      FUNCION PARA CREAR INDICE                           |
+    \**************************************************************************/
     public static void createIndex(String index, String facet, String path) throws IOException{
         
         Map<String,Analyzer> mip = new HashMap<>(); //se crea un MAP con analizadores para usar cada uno con un campo distinto del indice
