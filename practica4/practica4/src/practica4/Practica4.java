@@ -179,10 +179,10 @@ public class Practica4{
         
         String INDEX_DIR = "../resultados/index";
         String FACET_DIR = "../resultados/facet";
-        String path = "../prueba";
+        //String path = "../prueba";
         
-        //String path = "../consultas SCOPUS";
+        String path = "../consultas SCOPUS";
         
-       createIndex(INDEX_DIR, FACET_DIR, path);
+        createIndex(INDEX_DIR, FACET_DIR, path);
     }
 }

@@ -32,59 +32,69 @@ import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.facet.FacetField;
+import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.taxonomy.TaxonomyReader;
+import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 /******************************************************************************\
 |                              CLASE PRINCIPAL                                 |
 \******************************************************************************/
 public class Practica5{
-      
+    
+    /* Variables globales */
+    private static IndexReader reader;
+    private static IndexSearcher searcher;
+    private static TaxonomyReader taxoReader;
+    private static FacetsConfig fconfig;
+    private static FacetsCollector fcollector;     
     
     /**************************************************************************\
-    |                       FUNCION PARA CREAR INDICE                          |
+    |                       COSTRUCTOR                                         |
     \**************************************************************************/
-    /*
-    public static void createIndex(String index, String facet, String path) throws IOException{
+    public static void inicializar(String index, String facet) throws IOException{
         
-        Map<String,Analyzer> mip = new HashMap<>(); //se crea un MAP con analizadores para usar cada uno con un campo distinto del indice
-        mip.put("Link", new UAX29URLEmailAnalyzer()); //para guardarlos enlaces enteros
-        mip.put("EID", new KeywordAnalyzer());  //para que no haga nada
-        mip.put("Cited by", new StandardAnalyzer()); //para que no borre el numero
-
-       //cambiar a StandardAnalyzer() si queremos almacenar letras sueltas
-       //por defecto se usa mi analizador
-        PerFieldAnalyzerWrapper pefe = new PerFieldAnalyzerWrapper(new Analizador(), mip);
-        
-        //creacion del indice
-        FSDirectory indexDir = FSDirectory.open(Paths.get(index));
-        IndexWriterConfig config = new IndexWriterConfig(pefe);       
-        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-        writer = new IndexWriter(indexDir, config);
-
-        //Creando el índice de Facetas
-        FSDirectory taxoDir = FSDirectory.open(Paths.get(facet));
+        Directory indexDir = FSDirectory.open(Paths.get(index));
+        Directory taxoDir = FSDirectory.open(Paths.get(facet));
+        reader = DirectoryReader.open(indexDir);
+        searcher = new IndexSearcher(reader);
+        taxoReader = new DirectoryTaxonomyReader(taxoDir);
         fconfig = new FacetsConfig();
-        taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
+        fcollector = new FacetsCollector();
         
-        fconfig.setMultiValued("Autor", true);
-        
-        //lectura de doucmentos e insercion en el indice
-        long startTime = System.currentTimeMillis();
-        obtenerDocs(path);
-        writer.commit();            
-        long endTime = System.currentTimeMillis();            
-        System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
-        
-        
-        //Cerrando lecturas
-        writer.close();
-        taxoWriter.close();
     }
-    */ 
+    
+    /**************************************************************************\
+    |                       FUNCION PA BUSCAR                                  |
+    \**************************************************************************/
+    public static TopDocs busqueda(String field, String query, int tam) throws ParseException, IOException{
+        
+        //quitar
+        QueryParser parser = new QueryParser(field, new KeywordAnalyzer());
+        Query q = parser.parse(query);
+        
+        System.out.println(q.toString());
+        return FacetsCollector.search(searcher, q, tam, fcollector);
+        
+    }
+    
     
     /**************************************************************************\
     |                             FUNCION MAIN                                 |
@@ -95,10 +105,17 @@ public class Practica5{
         
         String INDEX_DIR = "../resultados/index";
         String FACET_DIR = "../resultados/facet";
-        String path = "../prueba";
         
-        //String path = "../consultas SCOPUS";
+        inicializar(INDEX_DIR, FACET_DIR);
         
-       createIndex(INDEX_DIR, FACET_DIR, path);
+        TopDocs top = busqueda("Authors", "lacerda dourado cardoso", 20); //busqueda
+        
+        System.out.println(top.totalHits);
+        
+        for (ScoreDoc mec : top.scoreDocs) {
+            Document d = searcher.doc(mec.doc);
+            System.out.println(mec.score+" "+d.get("Title"));
+        }
+        
     }
 }
