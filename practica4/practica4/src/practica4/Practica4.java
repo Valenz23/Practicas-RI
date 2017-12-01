@@ -133,18 +133,7 @@ public class Practica4{
     /***************************************************************************\
      * FUNCION PARA CREAR INDICE
     *****************************************************************************/
-    
-    /**************************************************************************\
-    |                             FUNCION MAIN                                 |
-    | @param args                                                              |
-    | @throws java.lang.Exception                                              |
-    \**************************************************************************/
-    public static void main(String[] args) throws Exception {       
-       
-        String INDEX_DIR = "../resultados/index";
-        String FACET_DIR = "../resultados/facet";
-        String path = "../prueba";
-        //String path = "../consultas SCOPUS";
+    public static void createIndex(String index, String facet, String path) throws IOException{
         
         Map<String,Analyzer> mip = new HashMap<>(); //se crea un MAP con analizadores para usar cada uno con un campo distinto del indice
         mip.put("Link", new UAX29URLEmailAnalyzer()); //para guardarlos enlaces enteros
@@ -156,13 +145,13 @@ public class Practica4{
         PerFieldAnalyzerWrapper pefe = new PerFieldAnalyzerWrapper(new Analizador(), mip);
         
         //creacion del indice
-        FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
+        FSDirectory indexDir = FSDirectory.open(Paths.get(index));
         IndexWriterConfig config = new IndexWriterConfig(pefe);       
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         writer = new IndexWriter(indexDir, config);
 
         //Creando el índice de Facetas
-        FSDirectory taxoDir = FSDirectory.open(Paths.get(FACET_DIR));
+        FSDirectory taxoDir = FSDirectory.open(Paths.get(facet));
         fconfig = new FacetsConfig();
         taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
         
@@ -179,5 +168,21 @@ public class Practica4{
         //Cerrando lecturas
         writer.close();
         taxoWriter.close();
+    }    
+    
+    /**************************************************************************\
+    |                             FUNCION MAIN                                 |
+    | @param args                                                              |
+    | @throws java.lang.Exception                                              |
+    \**************************************************************************/
+    public static void main(String[] args) throws Exception {   
+        
+        String INDEX_DIR = "../resultados/index";
+        String FACET_DIR = "../resultados/facet";
+        String path = "../prueba";
+        
+        //String path = "../consultas SCOPUS";
+        
+       createIndex(INDEX_DIR, FACET_DIR, path);
     }
 }
