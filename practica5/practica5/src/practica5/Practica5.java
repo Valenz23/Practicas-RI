@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 //Librerias de Lucene
@@ -29,11 +30,22 @@ import org.apache.lucene.analysis.standard.UAX29URLEmailAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.facet.range.LongRange;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.facet.DrillDownQuery;
+import org.apache.lucene.facet.DrillSideways;
+import org.apache.lucene.facet.DrillSideways.DrillSidewaysResult;
 import org.apache.lucene.facet.FacetField;
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.LabelAndValue;
+import org.apache.lucene.facet.range.LongRangeFacetCounts;
+import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
+import org.apache.lucene.facet.taxonomy.TaxonomyFacetCounts;
+import org.apache.lucene.facet.taxonomy.TaxonomyFacetSumValueSource;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
@@ -46,7 +58,9 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.DoubleValuesSource;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
@@ -77,7 +91,8 @@ public class Practica5{
         searcher = new IndexSearcher(reader);
         taxoReader = new DirectoryTaxonomyReader(taxoDir);
         fconfig = new FacetsConfig();
-        fcollector = new FacetsCollector();
+        //fcollector = new FacetsCollector();
+        fcollector = new FacetsCollector(true); //asi almacenamos los scores
         
     }
     
@@ -90,7 +105,7 @@ public class Practica5{
         QueryParser parser = new QueryParser(field, new KeywordAnalyzer());
         Query q = parser.parse(query);
         
-        System.out.println(q.toString());
+        //System.out.println(q.toString());
         return FacetsCollector.search(searcher, q, tam, fcollector);
         
     }
@@ -108,14 +123,96 @@ public class Practica5{
         
         inicializar(INDEX_DIR, FACET_DIR);
         
-        TopDocs top = busqueda("Authors", "lacerda dourado cardoso", 20); //busqueda
+        TopDocs top = busqueda("Abstract", "cat", 20); //busqueda
         
-        System.out.println(top.totalHits);
+        //System.out.println(top.totalHits);
         
-        for (ScoreDoc mec : top.scoreDocs) {
+        /*for (ScoreDoc mec : top.scoreDocs) {
             Document d = searcher.doc(mec.doc);
             System.out.println(mec.score+" "+d.get("Title"));
+        }*/
+        
+        Facets facetas;
+              
+        //conteo de resultados
+        facetas = new FastTaxonomyFacetCounts(taxoReader, fconfig, fcollector);
+        
+        //iteramos sobre las facetas        
+        List<FacetResult> totalDims = facetas.getAllDims(10);
+       //System.out.println("Total de categorias "+totalDims.size());
+        for (FacetResult fr : totalDims) {
+           // System.out.println("Categoria: "+fr.dim);
+            for (LabelAndValue lav : fr.labelValues) {
+                //System.out.println("Etiqueta: "+lav.label+" || valor -> "+lav.value);
+            }
         }
+        
+        //FacetResult fr = facetas.getTopChildren(5, "Autor");
+        
+        //suma de scores
+        facetas = new TaxonomyFacetSumValueSource(taxoReader, fconfig, fcollector, DoubleValuesSource.SCORES);
+       // System.out.println("Sumamos los scores");
+        FacetResult frs = facetas.getTopChildren(10, "Año");
+        for(LabelAndValue lav: frs.labelValues){
+           // System.out.println("Etiqueta: "+lav.label+" || valor -> "+lav.value);
+        }
+        
+        //por rango
+        FacetsCollector fcRango = new FacetsCollector();
+        LongRange[] rangos = new LongRange[3];
+        rangos[0] = new LongRange("10000 a.C.-2000",Long.MIN_VALUE, true, 2000, true);
+        rangos[1] = new LongRange("2001-2010", 2007, true, 2012, true);
+        rangos[2] = new LongRange("2010-Ahora", 2012, true, Long.MAX_VALUE, true);        
+        //FacetsCollector.search(searcher, new MatchAllDocsQuery(), 10, fcRango); //devolver en topdocs
+        LongRangeFacetCounts faceiter = new LongRangeFacetCounts("Año", fcRango, rangos);
+        //System.out.println("Por rangos");
+        FacetResult frs123 = faceiter.getTopChildren(0, "Año");
+        for(LabelAndValue lav: frs123.labelValues){
+           // System.out.println("Etiqueta: "+lav.label+" || valor -> "+lav.value);
+        }
+        
+        //drill down preba
+        Query q1 = new MatchAllDocsQuery();
+        DrillDownQuery ddq = new DrillDownQuery(fconfig, q1);
+        ddq.add("Autor", "Chen");
+        ddq.add("Año", "2016"); 
+        ddq.add("Año", "2015"); 
+        System.out.println("Filtramos query ["+ddq.toString()+"]");
+        
+        FacetsCollector fc1 = new FacetsCollector();
+        TopDocs td1 = FacetsCollector.search(searcher, ddq, 10, fc1);
+        System.out.println("    Total hits: "+td1.totalHits);
+        Facets fcCounts2 = new FastTaxonomyFacetCounts(taxoReader, fconfig, fc1);
+        List<FacetResult> allDims = fcCounts2.getAllDims(10);
+        
+        System.out.println("Categorias "+allDims.size());
+        for(FacetResult fr: allDims){
+            System.out.println("Dimension: "+fr.dim);
+            for(LabelAndValue lav: fr.labelValues){
+                System.out.println("    "+lav.label+":: -> "+lav.value);
+            }
+        }
+        
+        for(ScoreDoc sd: td1.scoreDocs){
+            Document d = searcher.doc(sd.doc);
+            System.out.println("   Doc Score -> "+sd.score+":: -> "+d.get("Title"));
+        }
+        
+        //para no perder conteos de otaras facetas
+        /*System.out.println("Ahora con DrillSideWays");
+        DrillSideways ds = new DrillSideways(searcher, fconfig, taxoReader);
+        DrillSidewaysResult dsresult = ds.search(ddq, 10);
+        System.out.println("hits: "+dsresult.hits.totalHits);
+        System.out.println(dsresult.facets.getAllDims(10).toString());
+        
+        for(ScoreDoc dc : dsresult.hits.scoreDocs){
+            Document das = searcher.doc(dc.doc);
+            System.out.println("   Doc Score -> "+dc.score+":: -> "+das.get("Title"));
+        }*/
+        
+        //arboles de facetas
+       /* fconfig.setIndexFieldName("Titulo", "facet_tit");
+        fconfig.setIndexFieldName("Resumen", "facet_res");*/
         
     }
 }
