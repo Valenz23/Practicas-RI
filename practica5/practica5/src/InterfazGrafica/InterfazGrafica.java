@@ -10,30 +10,14 @@ package InterfazGrafica;
 
 import Buscador.Buscador;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-/*import static Buscador.Buscador.busqueda;
-import static Buscador.Buscador.hacerDrillDown;
-import static Buscador.Buscador.muestraFacetas;
-import static Buscador.Buscador.muestraResults;*/
-import java.awt.event.InputMethodListener;
-import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.ListModel;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreeSelectionModel;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -48,11 +32,7 @@ import org.apache.lucene.search.ScoreDoc;
 
 
 public class InterfazGrafica extends javax.swing.JFrame {
-    //Variables de clase
-    /*private TopDocs resultados_busqueda;
-    private IndexSearcher searcher;
-    private DirectoryReader reader;
-    private DirectoryTaxonomyReader taxoReader;*/
+    //Variables de clase    
     Buscador buscador;
     TopDocs res;
     
@@ -63,14 +43,6 @@ public class InterfazGrafica extends javax.swing.JFrame {
         JTA_Resultados.setEditable(false);
         buscador = new Buscador();
         buscador.inicializar(index, facet);
-        //Inicializamos las variables para poder leer los datos de los índices
-        /*Directory indexDir = FSDirectory.open(Paths.get(index));
-        reader = DirectoryReader.open(indexDir);
-        searcher = new IndexSearcher(reader);*/
-        
-        //Inicializamos las variables para poder leer los datos de las facetas
-       /* Directory taxoDir = FSDirectory.open(Paths.get(facet));
-        taxoReader = new DirectoryTaxonomyReader(taxoDir);*/
 
     }
 
@@ -216,24 +188,18 @@ public class InterfazGrafica extends javax.swing.JFrame {
         
         //REALIZAMOS LA BÚSQUEDA
         try {
-            //public static TopDocs busqueda(String field, String query, int tam)
             res = buscador.busqueda(indice, cadena_busqueda, cantidad_docs);
             ActualizaPantalla(res);
         } catch (ParseException | IOException ex) {
             Logger.getLogger(InterfazGrafica.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        //JOptionPane.showMessageDialog(this, indice+", "+cadena_busqueda+", la busqueda se ha realizado correctamente");
-        
-        //MOSTRAMOS POR PANTALLA LOS RESULTADOS en JList1_ResltsValueChanged
-        
     }//GEN-LAST:event_JB_BuscarActionPerformed
 
     private void ActualizaPantalla(TopDocs top) throws IOException   {
-        //System.out.println("Resultados:");
+        
         JTA_Resultados.setText("");
         JTA_Resultados.setText("Resultados\n");
-        //JLi_Resultados.add
         
         for (ScoreDoc mec : top.scoreDocs) {
             Document d = buscador.getSearcher().doc(mec.doc);
@@ -248,11 +214,9 @@ public class InterfazGrafica extends javax.swing.JFrame {
         DefaultMutableTreeNode book = null;
         
         for(FacetResult fr: allDims){
-            //System.out.println("Dimension: "+fr.dim);
             category = new DefaultMutableTreeNode(fr.dim);
             topa.add(category);
             for(LabelAndValue lav: fr.labelValues){
-                //System.out.println("    "+lav.label+":: -> "+lav.value);
                 book = new DefaultMutableTreeNode(lav.label);
                 category.add(book);
             }
