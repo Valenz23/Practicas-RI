@@ -25,9 +25,18 @@ import static Buscador.Buscador.hacerDrillDown;
 import static Buscador.Buscador.muestraFacetas;
 import static Buscador.Buscador.muestraResults;*/
 import java.awt.event.InputMethodListener;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.Facets;
+import org.apache.lucene.facet.LabelAndValue;
+import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.ScoreDoc;
 
 /**
@@ -222,6 +231,51 @@ public class InterfazGrafica extends javax.swing.JFrame {
             Document d = buscador.getSearcher().doc(mec.doc);
             JTA_Resultados.append(mec.score+" "+d.get("Title")+"\n");
         }
+        
+        /*DefaultMutableTreeNode topa = new DefaultMutableTreeNode("The Java Series");
+        DefaultMutableTreeNode category = null;
+        DefaultMutableTreeNode book = null;
+        
+        category = new DefaultMutableTreeNode("Books for Java Programmers");
+        topa.add(category);
+    
+            //original Tutorial
+        book = new DefaultMutableTreeNode("The Java Tutorial: A Short Course on the Basics");
+        category.add(book);
+    
+        //Tutorial Continued
+        book = new DefaultMutableTreeNode("The Java Tutorial Continued: The Rest of the JDK");
+        category.add(book);
+
+        //Swing Tutorial
+        book = new DefaultMutableTreeNode("The Swing Tutorial: A Guide to Constructing GUIs");
+        category.add(book);
+        
+        TreeModel tm = new DefaultTreeModel(topa);       
+        
+        JT_Facetas.setModel(tm);*/
+                
+        Facets fCounts = new FastTaxonomyFacetCounts(buscador.getTaxonomyReader(), buscador.getFacetsConfig(), buscador.getFacetsCollector());                
+        List<FacetResult> allDims = fCounts.getAllDims(10); 
+        
+        DefaultMutableTreeNode topa = new DefaultMutableTreeNode("grande pene");
+        DefaultMutableTreeNode category = null;
+        DefaultMutableTreeNode book = null;
+        /*System.out.println("Total hits: "+top.totalHits);
+        System.out.println("Categorias "+allDims.size());*/
+        
+        for(FacetResult fr: allDims){
+            //System.out.println("Dimension: "+fr.dim);
+            category = new DefaultMutableTreeNode("Dimensión: "+fr.dim);
+            topa.add(category);
+            for(LabelAndValue lav: fr.labelValues){
+                //System.out.println("    "+lav.label+":: -> "+lav.value);
+                book = new DefaultMutableTreeNode(lav.label);
+                category.add(book);
+            }
+        }
+        TreeModel tm = new DefaultTreeModel(topa);    
+        JT_Facetas.setModel(tm);
     }
     
     private void JTP_CuadrobusquedaInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_JTP_CuadrobusquedaInputMethodTextChanged
