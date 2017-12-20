@@ -4,9 +4,9 @@
 *  
 *  Recuperación de Información
 *  2017/2018
-*  Practica 4
+*  Practica 5
 */
-package practica5;
+package Buscador;
 
 
 /******************************************************************************\
@@ -45,7 +45,7 @@ import org.apache.lucene.store.FSDirectory;
 /******************************************************************************\
 |                              CLASE PRINCIPAL                                 |
 \******************************************************************************/
-public class Practica5{
+public class Buscador{
     
     /* Variables globales */
     private static IndexReader reader;
@@ -56,7 +56,9 @@ public class Practica5{
     private static BooleanQuery bq;
     
     /**************************************************************************\
-    |                       COSTRUCTOR                                         |
+    |                                COSTRUCTOR                                |
+    | @param index: indice                                                     |
+    | @param facet: facetas                                                    |
     \**************************************************************************/
     public static void inicializar(String index, String facet) throws IOException{
         
@@ -71,9 +73,12 @@ public class Practica5{
     }
     
     /**************************************************************************\
-    |                       FUNCION PA BUSCAR                                  |
+    |                             FUNCIÓN BUSQUEDA                             |
+    | @param field: campo de búsqueda                                          |
+    | @param query: consulta a realizar                                        |
+    | @param cantidad_docs: cantidad de documentos devueltos                   |
     \**************************************************************************/
-    public static TopDocs busqueda(String field, String query, int tam) throws ParseException, IOException{
+    public static TopDocs busqueda(String field, String query, int cantidad_docs) throws ParseException, IOException{
         
         QueryParser parser = new QueryParser(field, new Analizador()); //pongo mi super-analizador
         StringTokenizer str = new StringTokenizer(query);
@@ -95,12 +100,13 @@ public class Practica5{
         bq = constructor.build();
         
         fcollector = new FacetsCollector();
-        return FacetsCollector.search(searcher, bq, tam, fcollector);
+        return FacetsCollector.search(searcher, bq, cantidad_docs, fcollector);
         
     }
     
     /**************************************************************************\
-    |                       FUNCION PA mostrar facetas                         |
+    |                             FUNCIÓN FACETAS                              |
+    | @param top: array con las facetas de la búsqueda realizada                                        |
     \**************************************************************************/
     public static void muestraFacetas(TopDocs top) throws IOException{       
         
@@ -119,7 +125,8 @@ public class Practica5{
     }
     
     /**************************************************************************\
-    |                       FUNCION PA mostrar resultados                      |
+    |                      FUNCIÓN QUE MUESTRA RESULTADOS                      |
+    | @param top: array con los resultados de la búsqueda                      |
     \**************************************************************************/
     public static void muestraResults(TopDocs top) throws IOException{
         
@@ -133,16 +140,19 @@ public class Practica5{
     }
     
     /**************************************************************************\
-    |                       FUNCION PA hacer drill- wn                         |
+    |                       FUNCIÓN PARA DRILL DOWN                            |
+    | @param faceta: faceta de búsqueda                                        |
+    | @param query: consulta de búsqueda                                       |
+    | @param cantidad_docs: cantiodad de documentos máximos devueltos          |
     \**************************************************************************/
-    public static TopDocs hacerDrillDown(String faceta, String query, int tam) throws ParseException, IOException{
+    public static TopDocs hacerDrillDown(String faceta, String query, int cantidad_docs) throws ParseException, IOException{
         
         //System.out.println(bq.toString());
         fcollector = new FacetsCollector();
         DrillDownQuery ddq = new DrillDownQuery(fconfig, bq);
         ddq.add(faceta, query);
         //System.out.println(ddq.toString());
-        return FacetsCollector.search(searcher, ddq, tam, fcollector);
+        return FacetsCollector.search(searcher, ddq, cantidad_docs, fcollector);
     }
     
     /**************************************************************************\
@@ -159,11 +169,11 @@ public class Practica5{
         
         TopDocs top = busqueda("Abstract", "Population of pets", 20); //busqueda        
                 
-       top = hacerDrillDown("Año", "2017",20); //busqueda haciendo drill down
+        top = hacerDrillDown("Año", "2017",20); //busqueda haciendo drill down
         
-       // top = hacerDrillDown("Autor", "M", 20);
+        // top = hacerDrillDown("Autor", "M", 20);
         
-       // top = hacerDrillDown("Autor", "Perk", 20);
+        // top = hacerDrillDown("Autor", "Perk", 20);
         
         muestraFacetas(top);
         
