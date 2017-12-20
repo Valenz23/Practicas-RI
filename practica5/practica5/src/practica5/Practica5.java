@@ -4,7 +4,7 @@
 *  
 *  Recuperación de Información
 *  2017/2018
-*  Practica 4
+*  Practica 5
 */
 package practica5;
 
@@ -56,7 +56,7 @@ public class Practica5{
     private static BooleanQuery bq;
     
     /**************************************************************************\
-    |                       COSTRUCTOR                                         |
+    |                                COSTRUCTOR                                |
     \**************************************************************************/
     public static void inicializar(String index, String facet) throws IOException{
         
@@ -71,7 +71,7 @@ public class Practica5{
     }
     
     /**************************************************************************\
-    |                       FUNCION PA BUSCAR                                  |
+    |                             FUNCIÓN BUSQUEDA                             |
     \**************************************************************************/
     public static TopDocs busqueda(String field, String query, int tam) throws ParseException, IOException{
         
@@ -100,7 +100,7 @@ public class Practica5{
     }
     
     /**************************************************************************\
-    |                       FUNCION PA mostrar facetas                         |
+    |                             FUNCIÓN FACETAS                              |
     \**************************************************************************/
     public static void muestraFacetas(TopDocs top) throws IOException{       
         
@@ -119,7 +119,7 @@ public class Practica5{
     }
     
     /**************************************************************************\
-    |                       FUNCION PA mostrar resultados                      |
+    |                      FUNCIÓN QUE MUESTRA RESULTADOS                      |
     \**************************************************************************/
     public static void muestraResults(TopDocs top) throws IOException{
         
@@ -133,7 +133,7 @@ public class Practica5{
     }
     
     /**************************************************************************\
-    |                       FUNCION PA hacer drill- wn                         |
+    |                       FUNCIÓN PARA DRILL DOWN                            |
     \**************************************************************************/
     public static TopDocs hacerDrillDown(String faceta, String query, int tam) throws ParseException, IOException{
         
