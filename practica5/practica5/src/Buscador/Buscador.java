@@ -6,7 +6,7 @@
 *  2017/2018
 *  Practica 5
 */
-package practica5;
+package Buscador;
 
 
 /******************************************************************************\
@@ -45,7 +45,7 @@ import org.apache.lucene.store.FSDirectory;
 /******************************************************************************\
 |                              CLASE PRINCIPAL                                 |
 \******************************************************************************/
-public class Practica5{
+public class Buscador{
     
     /* Variables globales */
     private static IndexReader reader;
@@ -169,11 +169,11 @@ public class Practica5{
         
         TopDocs top = busqueda("Abstract", "Population of pets", 20); //busqueda        
                 
-       top = hacerDrillDown("Año", "2017",20); //busqueda haciendo drill down
+        top = hacerDrillDown("Año", "2017",20); //busqueda haciendo drill down
         
-       // top = hacerDrillDown("Autor", "M", 20);
+        // top = hacerDrillDown("Autor", "M", 20);
         
-       // top = hacerDrillDown("Autor", "Perk", 20);
+        // top = hacerDrillDown("Autor", "Perk", 20);
         
         muestraFacetas(top);
         
