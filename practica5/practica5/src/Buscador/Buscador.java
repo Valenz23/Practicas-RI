@@ -76,6 +76,18 @@ public class Buscador{
         return searcher;
     }
     
+    public TaxonomyReader getTaxonomyReader(){
+        return taxoReader;
+    }
+    
+    public FacetsConfig getFacetsConfig(){
+        return fconfig;
+    }
+    
+    public FacetsCollector getFacetsCollector(){
+        return fcollector;
+    }
+    
     /**************************************************************************\
     |                             FUNCIÓN BUSQUEDA                             |
     | @param field: campo de búsqueda                                          |
