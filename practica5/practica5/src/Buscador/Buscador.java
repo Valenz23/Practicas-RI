@@ -48,19 +48,19 @@ import org.apache.lucene.store.FSDirectory;
 public class Buscador{
     
     /* Variables globales */
-    private static IndexReader reader;
-    private static IndexSearcher searcher;
-    private static TaxonomyReader taxoReader;
-    private static FacetsConfig fconfig;
-    private static FacetsCollector fcollector;     
-    private static BooleanQuery bq;
+    private IndexReader reader;
+    private IndexSearcher searcher;
+    private TaxonomyReader taxoReader;
+    private FacetsConfig fconfig;
+    private FacetsCollector fcollector;     
+    private BooleanQuery bq;
     
     /**************************************************************************\
     |                                COSTRUCTOR                                |
     | @param index: indice                                                     |
     | @param facet: facetas                                                    |
     \**************************************************************************/
-    public static void inicializar(String index, String facet) throws IOException{
+    public void inicializar(String index, String facet) throws IOException{
         
         Directory indexDir = FSDirectory.open(Paths.get(index));
         Directory taxoDir = FSDirectory.open(Paths.get(facet));
@@ -72,13 +72,17 @@ public class Buscador{
         //fcollector = new FacetsCollector(true); //asi almacenamos los scores        
     }
     
+    public IndexSearcher getSearcher(){
+        return searcher;
+    }
+    
     /**************************************************************************\
     |                             FUNCIÓN BUSQUEDA                             |
     | @param field: campo de búsqueda                                          |
     | @param query: consulta a realizar                                        |
     | @param cantidad_docs: cantidad de documentos devueltos                   |
     \**************************************************************************/
-    public static TopDocs busqueda(String field, String query, int cantidad_docs) throws ParseException, IOException{
+    public TopDocs busqueda(String field, String query, int cantidad_docs) throws ParseException, IOException{
         
         QueryParser parser = new QueryParser(field, new Analizador()); //pongo mi super-analizador
         StringTokenizer str = new StringTokenizer(query);
@@ -108,7 +112,7 @@ public class Buscador{
     |                             FUNCIÓN FACETAS                              |
     | @param top: array con las facetas de la búsqueda realizada                                        |
     \**************************************************************************/
-    public static void muestraFacetas(TopDocs top) throws IOException{       
+    public void muestraFacetas(TopDocs top) throws IOException{       
         
         Facets fCounts = new FastTaxonomyFacetCounts(taxoReader, fconfig, fcollector);                
         List<FacetResult> allDims = fCounts.getAllDims(10); 
@@ -128,7 +132,7 @@ public class Buscador{
     |                      FUNCIÓN QUE MUESTRA RESULTADOS                      |
     | @param top: array con los resultados de la búsqueda                      |
     \**************************************************************************/
-    public static void muestraResults(TopDocs top) throws IOException{
+    public void muestraResults(TopDocs top) throws IOException{
         
         System.out.println("Resultados:");
         
@@ -145,7 +149,7 @@ public class Buscador{
     | @param query: consulta de búsqueda                                       |
     | @param cantidad_docs: cantiodad de documentos máximos devueltos          |
     \**************************************************************************/
-    public static TopDocs hacerDrillDown(String faceta, String query, int cantidad_docs) throws ParseException, IOException{
+    public TopDocs hacerDrillDown(String faceta, String query, int cantidad_docs) throws ParseException, IOException{
         
         //System.out.println(bq.toString());
         fcollector = new FacetsCollector();
@@ -160,7 +164,7 @@ public class Buscador{
     | @param args                                                              |
     | @throws java.lang.Exception                                              |
     \**************************************************************************/
-    public static void main(String[] args) throws Exception {   
+   /* public static void main(String[] args) throws Exception {   
         
         String INDEX_DIR = "../resultados/index";
         String FACET_DIR = "../resultados/facet";
@@ -180,5 +184,5 @@ public class Buscador{
         muestraResults(top);
         
     }
-
+*/
 }

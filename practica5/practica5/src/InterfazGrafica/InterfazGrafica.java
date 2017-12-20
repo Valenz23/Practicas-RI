@@ -8,6 +8,7 @@ package InterfazGrafica;
 *  Practica 5
 */
 
+import Buscador.Buscador;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.logging.Level;
@@ -19,12 +20,15 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import static Buscador.Buscador.busqueda;
+/*import static Buscador.Buscador.busqueda;
 import static Buscador.Buscador.hacerDrillDown;
 import static Buscador.Buscador.muestraFacetas;
-import static Buscador.Buscador.muestraResults;
+import static Buscador.Buscador.muestraResults;*/
 import java.awt.event.InputMethodListener;
 import javax.swing.JOptionPane;
+import javax.swing.ListModel;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.search.ScoreDoc;
 
 /**
  *
@@ -34,22 +38,27 @@ import javax.swing.JOptionPane;
 
 public class InterfazGrafica extends javax.swing.JFrame {
     //Variables de clase
-    private TopDocs resultados_busqueda;
+    /*private TopDocs resultados_busqueda;
     private IndexSearcher searcher;
     private DirectoryReader reader;
-    private DirectoryTaxonomyReader taxoReader;
+    private DirectoryTaxonomyReader taxoReader;*/
+    Buscador buscador;
+    TopDocs res;
     
     //Constructor de clase
     public InterfazGrafica(String index, String facet) throws IOException {
         initComponents();
+        JTA_Resultados.setEditable(false);
+        buscador = new Buscador();
+        buscador.inicializar(index, facet);
         //Inicializamos las variables para poder leer los datos de los índices
-        Directory indexDir = FSDirectory.open(Paths.get(index));
+        /*Directory indexDir = FSDirectory.open(Paths.get(index));
         reader = DirectoryReader.open(indexDir);
-        searcher = new IndexSearcher(reader);
+        searcher = new IndexSearcher(reader);*/
         
         //Inicializamos las variables para poder leer los datos de las facetas
-        Directory taxoDir = FSDirectory.open(Paths.get(facet));
-        taxoReader = new DirectoryTaxonomyReader(taxoDir);
+       /* Directory taxoDir = FSDirectory.open(Paths.get(facet));
+        taxoReader = new DirectoryTaxonomyReader(taxoDir);*/
 
     }
 
@@ -72,8 +81,8 @@ public class InterfazGrafica extends javax.swing.JFrame {
         JCB_Indices = new javax.swing.JComboBox<>();
         JL_Subtitulo = new javax.swing.JLabel();
         JB_Buscar = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        JLi_Resultados = new javax.swing.JList<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        JTA_Resultados = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 204, 255));
@@ -110,17 +119,9 @@ public class InterfazGrafica extends javax.swing.JFrame {
             }
         });
 
-        JLi_Resultados.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        JLi_Resultados.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                JLi_ResultadosValueChanged(evt);
-            }
-        });
-        jScrollPane3.setViewportView(JLi_Resultados);
+        JTA_Resultados.setColumns(20);
+        JTA_Resultados.setRows(5);
+        jScrollPane2.setViewportView(JTA_Resultados);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -129,8 +130,8 @@ public class InterfazGrafica extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3)
-                .addGap(123, 123, 123))
+                .addComponent(jScrollPane2)
+                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(222, 222, 222)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -165,7 +166,9 @@ public class InterfazGrafica extends javax.swing.JFrame {
                 .addGap(37, 37, 37)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -186,8 +189,9 @@ public class InterfazGrafica extends javax.swing.JFrame {
     \**************************************************************************/
     private void JB_BuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JB_BuscarActionPerformed
         //OBTENEMOS DATOS PARA BÚSQUEDA
-        String indice = JCB_Indices.getPrototypeDisplayValue();
-        String cadena_busqueda = JTP_Cuadrobusqueda.getContentType();
+        int i = JCB_Indices.getSelectedIndex();
+        String indice = JCB_Indices.getItemAt(i);
+        String cadena_busqueda = JTP_Cuadrobusqueda.getText();        
         //trim(): borra espacios en blanco delante y detrás de la cadena de texto
         cadena_busqueda = cadena_busqueda.trim();
         //Cantidad de documentos que devuelve la función tras realizar una búsqueda
@@ -196,7 +200,8 @@ public class InterfazGrafica extends javax.swing.JFrame {
         //REALIZAMOS LA BÚSQUEDA
         try {
             //public static TopDocs busqueda(String field, String query, int tam)
-            resultados_busqueda = busqueda(indice, cadena_busqueda, cantidad_docs);
+            res = buscador.busqueda(indice, cadena_busqueda, cantidad_docs);
+            ActualizaPantalla(res);
         } catch (ParseException | IOException ex) {
             Logger.getLogger(InterfazGrafica.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -207,19 +212,18 @@ public class InterfazGrafica extends javax.swing.JFrame {
         
     }//GEN-LAST:event_JB_BuscarActionPerformed
 
-    private void JLi_ResultadosValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_JLi_ResultadosValueChanged
-        //MOSTRAMOS EL ARRAY CON CADA RESULTADO
-        //public static void muestraResults(TopDocs top) throws IOException
+    private void ActualizaPantalla(TopDocs top) throws IOException   {
+        //System.out.println("Resultados:");
+        JTA_Resultados.setText("");
+        JTA_Resultados.setText("Resultados\n");
+        //JLi_Resultados.add
         
-        System.out.println("Resultados obtenidos para la búsqueda realizada:");
-        
-        try {
-            muestraResults(resultados_busqueda);
-        } catch (IOException ex) {
-            Logger.getLogger(InterfazGrafica.class.getName()).log(Level.SEVERE, null, ex);
+        for (ScoreDoc mec : top.scoreDocs) {
+            Document d = buscador.getSearcher().doc(mec.doc);
+            JTA_Resultados.append(mec.score+" "+d.get("Title")+"\n");
         }
-    }//GEN-LAST:event_JLi_ResultadosValueChanged
-
+    }
+    
     private void JTP_CuadrobusquedaInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_JTP_CuadrobusquedaInputMethodTextChanged
         
     }//GEN-LAST:event_JTP_CuadrobusquedaInputMethodTextChanged
@@ -260,7 +264,6 @@ public class InterfazGrafica extends javax.swing.JFrame {
             public void run() {
                 String INDEX_DIR = "../resultados/index";
                 String FACET_DIR = "../resultados/facet";
-                
                 try {
                     new InterfazGrafica(INDEX_DIR, FACET_DIR).setVisible(true);
                 } catch (IOException ex) {
@@ -277,11 +280,11 @@ public class InterfazGrafica extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> JCB_Indices;
     private javax.swing.JLabel JL_Subtitulo;
     private javax.swing.JLabel JL_Titulo;
-    private javax.swing.JList<String> JLi_Resultados;
+    private javax.swing.JTextArea JTA_Resultados;
     private javax.swing.JTextPane JTP_Cuadrobusqueda;
     private javax.swing.JTree JT_Facetas;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
