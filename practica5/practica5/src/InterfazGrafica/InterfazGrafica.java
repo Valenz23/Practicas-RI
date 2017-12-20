@@ -28,10 +28,12 @@ import java.awt.event.InputMethodListener;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreeSelectionModel;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -56,7 +58,8 @@ public class InterfazGrafica extends javax.swing.JFrame {
     
     //Constructor de clase
     public InterfazGrafica(String index, String facet) throws IOException {
-        initComponents();
+        initComponents();        
+        JT_Facetas.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
         JTA_Resultados.setEditable(false);
         buscador = new Buscador();
         buscador.inicializar(index, facet);
@@ -96,6 +99,11 @@ public class InterfazGrafica extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 204, 255));
 
+        JT_Facetas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JT_FacetasMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(JT_Facetas);
 
         JTP_Cuadrobusqueda.setToolTipText("");
@@ -215,7 +223,7 @@ public class InterfazGrafica extends javax.swing.JFrame {
             Logger.getLogger(InterfazGrafica.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        JOptionPane.showMessageDialog(this, indice+", "+cadena_busqueda+", la busqueda se ha realizado correctamente");
+        //JOptionPane.showMessageDialog(this, indice+", "+cadena_busqueda+", la busqueda se ha realizado correctamente");
         
         //MOSTRAMOS POR PANTALLA LOS RESULTADOS en JList1_ResltsValueChanged
         
@@ -229,44 +237,19 @@ public class InterfazGrafica extends javax.swing.JFrame {
         
         for (ScoreDoc mec : top.scoreDocs) {
             Document d = buscador.getSearcher().doc(mec.doc);
-            JTA_Resultados.append(mec.score+" "+d.get("Title")+"\n");
-        }
-        
-        /*DefaultMutableTreeNode topa = new DefaultMutableTreeNode("The Java Series");
-        DefaultMutableTreeNode category = null;
-        DefaultMutableTreeNode book = null;
-        
-        category = new DefaultMutableTreeNode("Books for Java Programmers");
-        topa.add(category);
-    
-            //original Tutorial
-        book = new DefaultMutableTreeNode("The Java Tutorial: A Short Course on the Basics");
-        category.add(book);
-    
-        //Tutorial Continued
-        book = new DefaultMutableTreeNode("The Java Tutorial Continued: The Rest of the JDK");
-        category.add(book);
-
-        //Swing Tutorial
-        book = new DefaultMutableTreeNode("The Swing Tutorial: A Guide to Constructing GUIs");
-        category.add(book);
-        
-        TreeModel tm = new DefaultTreeModel(topa);       
-        
-        JT_Facetas.setModel(tm);*/
+            JTA_Resultados.append("["+mec.score+"] \t "+d.get("Title")+"\n");
+        }              
                 
         Facets fCounts = new FastTaxonomyFacetCounts(buscador.getTaxonomyReader(), buscador.getFacetsConfig(), buscador.getFacetsCollector());                
         List<FacetResult> allDims = fCounts.getAllDims(10); 
         
-        DefaultMutableTreeNode topa = new DefaultMutableTreeNode("grande pene");
+        DefaultMutableTreeNode topa = new DefaultMutableTreeNode("Docs recuperados: "+top.totalHits);
         DefaultMutableTreeNode category = null;
         DefaultMutableTreeNode book = null;
-        /*System.out.println("Total hits: "+top.totalHits);
-        System.out.println("Categorias "+allDims.size());*/
         
         for(FacetResult fr: allDims){
             //System.out.println("Dimension: "+fr.dim);
-            category = new DefaultMutableTreeNode("Dimensión: "+fr.dim);
+            category = new DefaultMutableTreeNode(fr.dim);
             topa.add(category);
             for(LabelAndValue lav: fr.labelValues){
                 //System.out.println("    "+lav.label+":: -> "+lav.value);
@@ -281,6 +264,24 @@ public class InterfazGrafica extends javax.swing.JFrame {
     private void JTP_CuadrobusquedaInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_JTP_CuadrobusquedaInputMethodTextChanged
         
     }//GEN-LAST:event_JTP_CuadrobusquedaInputMethodTextChanged
+
+    private void JT_FacetasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JT_FacetasMouseClicked
+        // TODO add your handling code here:
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                       JT_Facetas.getLastSelectedPathComponent();
+
+        if (node.isLeaf()){
+            try {
+                res = buscador.hacerDrillDown(node.getParent().toString(), node.toString(), 20);
+                ActualizaPantalla(res);
+            } catch (ParseException ex) {
+                Logger.getLogger(InterfazGrafica.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(InterfazGrafica.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }       
+        
+    }//GEN-LAST:event_JT_FacetasMouseClicked
 
     
     /**************************************************************************\
