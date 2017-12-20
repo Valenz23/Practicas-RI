@@ -5,11 +5,20 @@
  */
 package practica5;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.TopDocs;
+import static practica5.Practica5.busqueda;
+
 /**
  *
  * @author Franelas
  */
 public class InterfazReshulona extends javax.swing.JFrame {
+
+    private TopDocs resultados_busqueda;
 
     /**
      * Creates new form InterfazReshulona
@@ -40,16 +49,16 @@ public class InterfazReshulona extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(204, 204, 255));
 
         jScrollPane1.setViewportView(jTree1);
 
-        JTP_Cuadrobusqueda.setForeground(new java.awt.Color(0, 0, 0));
         JTP_Cuadrobusqueda.setToolTipText("");
         jScrollPane4.setViewportView(JTP_Cuadrobusqueda);
 
         jLabel1.setText("Recuperación de Información sobre SCOPUS");
 
-        JCB_Indices.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Título", "Resumen", "Palabras clave del autor", "Palabras clave del índice" }));
+        JCB_Indices.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Title", "Abstract", "Author Keywords", "Index KeyWords" }));
         JCB_Indices.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 JCB_IndicesActionPerformed(evt);
@@ -59,6 +68,11 @@ public class InterfazReshulona extends javax.swing.JFrame {
         jLabel2.setText("BÚSQUEDA");
 
         jButton1.setText("Buscar");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -73,14 +87,13 @@ public class InterfazReshulona extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSeparator1)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(137, 137, 137)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 455, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(126, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
@@ -95,6 +108,7 @@ public class InterfazReshulona extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(JCB_Indices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())))
+            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -104,7 +118,7 @@ public class InterfazReshulona extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane4))
                 .addGap(13, 13, 13)
                 .addComponent(JCB_Indices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -112,12 +126,9 @@ public class InterfazReshulona extends javax.swing.JFrame {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2)
-                        .addContainerGap())))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -137,17 +148,33 @@ public class InterfazReshulona extends javax.swing.JFrame {
         //OBTENEMOS DATOS PARA BÚSQUEDA
         String indice = JCB_Indices.getToolTipText();
         String cadena_busqueda = JTP_Cuadrobusqueda.getContentType();
+        //Cantidad de documentos que devuelve la función tras realizar una búsqueda
+        int cantidad_docs = 20;
         
         //REALIZAMOS LA BÚSQUEDA
+        try {
+            //public static TopDocs busqueda(String field, String query, int tam)
+            resultados_busqueda = busqueda(indice, cadena_busqueda, cantidad_docs);
+        } catch (ParseException ex) {
+            Logger.getLogger(InterfazReshulona.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(InterfazReshulona.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         //MOSTRAMOS POR PANTALLA LOS RESULTADOS
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
-   
-   
-    /**
-     * @param args the command line arguments
-     */
+    /**************************************************************************\
+    |                           BOTON DE BÚSQUEDA                              |
+    \**************************************************************************/
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1MouseClicked
+
+    /**************************************************************************\
+    |                                  MAIN                                    |
+    \**************************************************************************/
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
