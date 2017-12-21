@@ -72,6 +72,9 @@ public class Buscador{
         //fcollector = new FacetsCollector(true); //asi almacenamos los scores        
     }
     
+    /**************************************************************************\
+    |                              METODOS GET                                 |
+    \**************************************************************************/
     public IndexSearcher getSearcher(){
         return searcher;
     }
@@ -87,6 +90,8 @@ public class Buscador{
     public FacetsCollector getFacetsCollector(){
         return fcollector;
     }
+
+    
     
     /**************************************************************************\
     |                             FUNCIÓN BUSQUEDA                             |
@@ -121,8 +126,8 @@ public class Buscador{
     }
     
     /**************************************************************************\
-    |                             FUNCIÓN FACETAS                              |
-    | @param top: array con las facetas de la búsqueda realizada                                        |
+    |                    FUNCIÓN QUE MUESTRA LAS FACETAS                       |
+    | @param top: array con las facetas de la búsqueda realizada               |
     \**************************************************************************/
     public void muestraFacetas(TopDocs top) throws IOException{       
         
@@ -161,7 +166,7 @@ public class Buscador{
     | @param query: consulta de búsqueda                                       |
     | @param cantidad_docs: cantiodad de documentos máximos devueltos          |
     \**************************************************************************/
-    public TopDocs hacerDrillDown(String faceta, String query, int cantidad_docs) throws ParseException, IOException{
+    public TopDocs hacerDrillDown(String faceta, String query, int cantidad_docs)throws ParseException, IOException{
         
         //System.out.println(bq.toString());
         fcollector = new FacetsCollector();

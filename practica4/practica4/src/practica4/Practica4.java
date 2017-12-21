@@ -132,15 +132,17 @@ public class Practica4{
     
     /**************************************************************************\
     |                      FUNCION PARA CREAR INDICE                           |
+    | @param index: indice de búsqueda                                         |
+    | @param facet: facetas de búsqueda                                        |
+    | @param path: ruta donde se encuentran los documentos a indexar           |
     \**************************************************************************/
     public static void createIndex(String index, String facet, String path) throws IOException{
-        
-        Map<String,Analyzer> mip = new HashMap<>(); //se crea un MAP con analizadores para usar cada uno con un campo distinto del indice
+        //se crea un MAP con analizadores para usar cada uno con un campo distinto del indice
+        Map<String,Analyzer> mip = new HashMap<>(); 
         mip.put("Link", new UAX29URLEmailAnalyzer()); //para guardarlos enlaces enteros
         mip.put("EID", new KeywordAnalyzer());  //para que no haga nada
         mip.put("Cited by", new StandardAnalyzer()); //para que no borre el numero
 
-       //cambiar a StandardAnalyzer() si queremos almacenar letras sueltas
        //por defecto se usa mi analizador
         PerFieldAnalyzerWrapper pefe = new PerFieldAnalyzerWrapper(new Analizador(), mip);
         
@@ -154,7 +156,6 @@ public class Practica4{
         FSDirectory taxoDir = FSDirectory.open(Paths.get(facet));
         fconfig = new FacetsConfig();
         taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
-        
         fconfig.setMultiValued("Autor", true);
         
         //lectura de doucmentos e insercion en el indice
@@ -163,7 +164,6 @@ public class Practica4{
         writer.commit();            
         long endTime = System.currentTimeMillis();            
         System.out.println(writer.numDocs()+" ficheros indexados en: "+(endTime-startTime)+" ms");
-        
         
         //Cerrando lecturas
         writer.close();
